@@ -1,4 +1,4 @@
-import { UserInfo } from "./user";
+import { UserInfo } from './user';
 
 export type RaidData = {
   broadcaster: {
@@ -6,11 +6,4 @@ export type RaidData = {
     info: UserInfo;
   };
   viewers: number;
-}
-
-export type RewardRedemptionData = {
-  rewardId: string;
-  userId: string;
-  userDisplayName: string;
-  input: string;
-}
+};

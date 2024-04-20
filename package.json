@@ -1,7 +1,6 @@
 {
   "name": "evotars",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -16,7 +15,6 @@
   "dependencies": {
     "@tweenjs/tween.js": "^23.1.1",
     "pixi.js": "^7.3.1",
-    "socket.io-client": "^4.7.2",
     "zod": "^3.22.5"
   }
 }

@@ -16,11 +16,11 @@ import { Evotar, EvotarProps } from '../entities/Evotar';
 import { timers } from '../helpers/timer';
 
 type EvotarsManagerSubscription = {
-  onAdd: (dude: Evotar) => void;
-  onDelete: (dude: Evotar) => void;
+  onAdd: (evotar: Evotar) => void;
+  onDelete: (evotar: Evotar) => void;
 };
 
-const DUDE_DESPAWN_TIMER = 1000 * 60 * 5;
+const EVOTAR_DESPAWN_TIMER = 1000 * 60 * 5;
 
 class EvotarsManager {
   private viewers: Record<string, Evotar | undefined> = {};
@@ -44,8 +44,8 @@ class EvotarsManager {
       }
     }
 
-    for (const dude of this.raiders) {
-      dude.update();
+    for (const evotar of this.raiders) {
+      evotar.update();
     }
   }
 
@@ -59,7 +59,7 @@ class EvotarsManager {
     const spriteConfig = config.sprites['agent'];
 
     for (let i = 0; i < data.viewers; i++) {
-      const dude = new Evotar({
+      const evotar = new Evotar({
         isAnonymous: true,
         zIndex: -1,
         sprite: spriteConfig,
@@ -67,20 +67,20 @@ class EvotarsManager {
       });
 
       timers.add(time * i, () => {
-        this.addRaider(dude);
-        dude.spawn({ isFalling: true });
+        this.addRaider(evotar);
+        evotar.spawn({ isFalling: true });
       });
 
       timers.add(i * time + 30000, () => {
-        dude.despawn({
+        evotar.despawn({
           onComplete: () => {
-            this.deleteRaider(dude);
+            this.deleteRaider(evotar);
           },
         });
       });
     }
 
-    const dude = this.viewers[data.broadcaster.id];
+    const evotar = this.viewers[data.broadcaster.id];
 
     const props: EvotarProps = {
       ...this.prepareEvotarProps(
@@ -91,17 +91,17 @@ class EvotarsManager {
     };
 
     const spawnBroadcaster = () => {
-      const dude = new Evotar(props);
-      this.addViewer(data.broadcaster.id, dude);
-      dude.spawn({ isFalling: true, positionX: 0.5 });
+      const evotar = new Evotar(props);
+      this.addViewer(data.broadcaster.id, evotar);
+      evotar.spawn({ isFalling: true, positionX: 0.5 });
     };
 
     this.lastEvotarActivity[data.broadcaster.id] = performance.now();
 
-    if (!dude) {
+    if (!evotar) {
       spawnBroadcaster();
     } else {
-      dude.despawn({
+      evotar.despawn({
         onComplete: () => {
           spawnBroadcaster();
         },
@@ -114,15 +114,15 @@ class EvotarsManager {
       const lastMessageTime = this.lastEvotarActivity[id];
       const spawnedRecently =
         !!lastMessageTime &&
-        performance.now() - lastMessageTime < DUDE_DESPAWN_TIMER;
+        performance.now() - lastMessageTime < EVOTAR_DESPAWN_TIMER;
 
       if (data.every((chatter) => chatter.userId != id) && !spawnedRecently) {
-        const dude = this.viewers[id];
+        const evotar = this.viewers[id];
 
-        if (dude) {
-          dude.despawn({
+        if (evotar) {
+          evotar.despawn({
             onComplete: () => {
-              this.deleteViewer(id, dude);
+              this.deleteViewer(id, evotar);
             },
           });
         }
@@ -131,18 +131,18 @@ class EvotarsManager {
 
     if (app.settings.showAnonymousEvotars) {
       for (const chatter of data) {
-        const dude = this.viewers[chatter.userId];
+        const evotar = this.viewers[chatter.userId];
 
-        if (!dude) {
+        if (!evotar) {
           const props = {
             name: chatter.name,
             isAnonymous: !this.hasActivity(chatter.userId),
           };
 
-          const dude = new Evotar(props);
-          dude.spawn();
+          const evotar = new Evotar(props);
+          evotar.spawn();
 
-          this.addViewer(chatter.userId, dude);
+          this.addViewer(chatter.userId, evotar);
         }
       }
     }
@@ -151,9 +151,9 @@ class EvotarsManager {
   private hasActivity = (userId: string): boolean =>
     !!this.lastEvotarActivity[userId];
 
-  public doAction(action: UserActionEntity, dude: Evotar) {
+  public doAction(action: UserActionEntity, evotar: Evotar) {
     if (isJumpUserActionEntity(action)) {
-      dude.jump({
+      evotar.jump({
         velocityX: action.data.velocityX,
         velocityY: action.data.velocityY,
         cooldown: action.cooldown,
@@ -161,19 +161,19 @@ class EvotarsManager {
     }
 
     if (isDashUserActionEntity(action)) {
-      dude.dash({ force: action.data.force, cooldown: action.cooldown });
+      evotar.dash({ force: action.data.force, cooldown: action.cooldown });
     }
 
     if (isColorUserActionEntity(action)) {
       const color = tinycolor(action.data.color);
 
       if (color && color.isValid()) {
-        dude.setUserProps({ color: new PIXI.Color(action.data.color) });
+        evotar.setUserProps({ color: new PIXI.Color(action.data.color) });
       }
     }
 
     if (isGrowUserActionEntity(action)) {
-      dude.scale({
+      evotar.scale({
         value: action.data.scale,
         duration: action.data.duration,
         cooldown: action.cooldown,
@@ -205,7 +205,7 @@ class EvotarsManager {
   }
 
   public processAction(action: UserActionEntity): void {
-    const dude = this.viewers[action.userId];
+    const evotar = this.viewers[action.userId];
 
     const props: EvotarProps = this.prepareEvotarProps(
       action.info.displayName,
@@ -213,22 +213,22 @@ class EvotarsManager {
       action.info.sprite,
     );
 
-    if (!dude) {
-      const dude = new Evotar(props);
+    if (!evotar) {
+      const evotar = new Evotar(props);
 
-      dude.spawn({
+      evotar.spawn({
         onComplete: () => {
-          const dude = this.viewers[action.userId];
-          if (dude) {
-            this.doAction(action, dude);
+          const evotar = this.viewers[action.userId];
+          if (evotar) {
+            this.doAction(action, evotar);
           }
         },
       });
 
-      this.addViewer(action.userId, dude);
+      this.addViewer(action.userId, evotar);
     } else {
-      this.doAction(action, dude);
-      dude.setProps(props);
+      this.doAction(action, evotar);
+      evotar.setProps(props);
     }
   }
 
@@ -239,67 +239,67 @@ class EvotarsManager {
       data.info.sprite,
     );
 
-    let dude = this.viewers[data.userId];
+    let evotar = this.viewers[data.userId];
 
-    if (!dude) {
+    if (!evotar) {
       const isFalling = app.settings.fallingEvotars
         ? !this.hasActivity(data.userId)
         : false;
 
-      dude = new Evotar(props);
-      dude.spawn({ isFalling });
+      evotar = new Evotar(props);
+      evotar.spawn({ isFalling });
 
-      this.addViewer(data.userId, dude);
+      this.addViewer(data.userId, evotar);
     } else {
-      dude.setProps(props);
+      evotar.setProps(props);
     }
 
     this.lastEvotarActivity[data.userId] = performance.now();
 
     if (data.message) {
-      dude.addMessage(data.message);
+      evotar.addMessage(data.message);
     }
 
     if (data.emotes.length > 0) {
-      dude.spitEmotes(data.emotes);
+      evotar.spitEmotes(data.emotes);
     }
   }
 
-  public addViewer(id: string, dude: Evotar): void {
-    this.subscriptions.forEach((s) => s.onAdd(dude));
-    this.viewers[id] = dude;
+  public addViewer(id: string, evotar: Evotar): void {
+    this.subscriptions.forEach((s) => s.onAdd(evotar));
+    this.viewers[id] = evotar;
   }
 
-  public deleteViewer(id: string, dude: Evotar): void {
-    this.subscriptions.forEach((s) => s.onDelete(dude));
+  public deleteViewer(id: string, evotar: Evotar): void {
+    this.subscriptions.forEach((s) => s.onDelete(evotar));
     delete this.viewers[id];
   }
 
-  public addRaider(dude: Evotar): void {
-    this.subscriptions.forEach((s) => s.onAdd(dude));
-    this.raiders.push(dude);
+  public addRaider(evotar: Evotar): void {
+    this.subscriptions.forEach((s) => s.onAdd(evotar));
+    this.raiders.push(evotar);
   }
 
-  public deleteRaider(dude: Evotar): void {
-    this.subscriptions.forEach((s) => s.onDelete(dude));
-    this.raiders = this.raiders.filter((raider) => raider != dude);
+  public deleteRaider(evotar: Evotar): void {
+    this.subscriptions.forEach((s) => s.onDelete(evotar));
+    this.raiders = this.raiders.filter((raider) => raider != evotar);
   }
 
   public zIndexEvotarMax(from: number) {
-    return Object.values(this.viewers).reduce((zIndex, dude) => {
-      return dude && zIndex <= dude.container.zIndex
-        ? dude.container.zIndex + 1
+    return Object.values(this.viewers).reduce((zIndex, evotar) => {
+      return evotar && zIndex <= evotar.container.zIndex
+        ? evotar.container.zIndex + 1
         : zIndex;
     }, from);
   }
 
   public zIndexEvotarMin(from: number) {
-    return Object.values(this.viewers).reduce((zIndex, dude) => {
-      return dude && zIndex >= dude.container.zIndex
-        ? dude.container.zIndex - 1
+    return Object.values(this.viewers).reduce((zIndex, evotar) => {
+      return evotar && zIndex >= evotar.container.zIndex
+        ? evotar.container.zIndex - 1
         : zIndex;
     }, from);
   }
 }
 
-export const dudesManager = new EvotarsManager();
+export const evotarsManager = new EvotarsManager();

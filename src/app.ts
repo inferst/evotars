@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 import { Evotar } from './entities/Evotar';
 import { timers } from './helpers/timer';
 import { assetsLoader } from './services/assetsLoader';
-import { dudesManager } from './services/evotarsManager';
+import { evotarsManager } from './services/evotarsManager';
 import { SoundManifest, soundService } from './services/soundService';
 import { SettingsEntity } from './types';
 
@@ -13,7 +13,7 @@ export type AppOptions = {
 
 export class App {
   public stage: PIXI.Container = new PIXI.Container();
-  public dudes: Record<string, Evotar> = {};
+  public evotars: Record<string, Evotar> = {};
 
   public chatterIds: string[] = [];
 
@@ -39,11 +39,11 @@ export class App {
 
     this.stage.sortableChildren = true;
 
-    dudesManager.subscribe({
-      onAdd: (dude: Evotar) => this.stage.addChild(dude.container),
-      onDelete: (dude: Evotar) => {
-        this.stage.removeChild(dude.container);
-        this.stage.removeChild(dude.trail.container);
+    evotarsManager.subscribe({
+      onAdd: (evotar: Evotar) => this.stage.addChild(evotar.container),
+      onDelete: (evotar: Evotar) => {
+        this.stage.removeChild(evotar.container);
+        this.stage.removeChild(evotar.trail.container);
       },
     });
   }
@@ -54,7 +54,7 @@ export class App {
 
   public update(): void {
     timers.tick();
-    dudesManager.update();
+    evotarsManager.update();
 
     this.renderer.render(this.stage);
   }

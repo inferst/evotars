@@ -5,7 +5,7 @@ import {
   EvotarLayerAnimatedSprite,
   EvotarSpriteLayers,
 } from '../services/spriteProvider';
-import { DEFAULT_DUDE_SCALE } from './Evotar';
+import { DEFAULT_EVOTAR_SCALE } from './Evotar';
 
 export type EvotarSpriteContainerProps = {
   color: {
@@ -59,7 +59,7 @@ export class EvotarSpriteContainer {
 
       if (props.scale.x) {
         layer.sprite.animationSpeed =
-          DEFAULT_DUDE_SCALE / Math.abs(props.scale.x);
+          DEFAULT_EVOTAR_SCALE / Math.abs(props.scale.x);
       }
     }
 

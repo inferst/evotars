@@ -4,7 +4,7 @@ import { app } from '../app';
 import { SpriteConfig } from '../config/config';
 import { FIXED_DELTA_TIME } from '../config/constants';
 import { Timer } from '../helpers/timer';
-import { dudesManager } from '../services/evotarsManager';
+import { evotarsManager } from '../services/evotarsManager';
 import { soundService } from '../services/soundService';
 import {
   EvotarSpriteLayers,
@@ -44,7 +44,7 @@ type UserProps = {
   color?: PIXI.Color;
 };
 
-export const DEFAULT_DUDE_SCALE = 4;
+export const DEFAULT_EVOTAR_SCALE = 4;
 
 export class Evotar {
   public container: PIXI.Container = new PIXI.Container();
@@ -70,7 +70,7 @@ export class Evotar {
     },
     color: new PIXI.Color('#969696'),
     direction: 1,
-    scale: DEFAULT_DUDE_SCALE,
+    scale: DEFAULT_EVOTAR_SCALE,
     isAnonymous: false,
     zIndex: 0,
   };
@@ -88,7 +88,7 @@ export class Evotar {
   private name: EvotarName = new EvotarName();
 
   private message: EvotarMessage = new EvotarMessage(() => {
-    this.state.zIndex = dudesManager.zIndexEvotarMax(this.container.zIndex);
+    this.state.zIndex = evotarsManager.zIndexEvotarMax(this.container.zIndex);
   });
 
   private emoteSpitter: EvotarEmoteSpitter = new EvotarEmoteSpitter();
@@ -160,7 +160,7 @@ export class Evotar {
     this.state.direction = Math.random() > 0.5 ? 1 : -1;
 
     if (!props.isFalling) {
-      const zIndex = dudesManager.zIndexEvotarMin(this.container.zIndex);
+      const zIndex = evotarsManager.zIndexEvotarMin(this.container.zIndex);
 
       this.state.zIndex = zIndex;
       this.container.alpha = 0;
@@ -196,11 +196,14 @@ export class Evotar {
     }
 
     this.scaleTween = new TWEEN.Tween(this)
-      .to({ state: { scale: DEFAULT_DUDE_SCALE * (options.value ?? 2) } }, 2000)
+      .to(
+        { state: { scale: DEFAULT_EVOTAR_SCALE * (options.value ?? 2) } },
+        2000,
+      )
       .onComplete(() => {
         this.scaleTimer = new Timer((options.duration ?? 10) * 1000, () => {
           this.scaleTween = new TWEEN.Tween(this)
-            .to({ state: { scale: DEFAULT_DUDE_SCALE } }, 2000)
+            .to({ state: { scale: DEFAULT_EVOTAR_SCALE } }, 2000)
             .start();
         });
       })

@@ -57,12 +57,12 @@ const settings: SettingsEntity = {
 const root = document.getElementById('root');
 
 if (root) {
-  const dudes = new Evotars(root);
-  await dudes.run({ manifest, sound });
-  dudes.updateSettings(settings);
+  const evotars = new Evotars(root);
+  await evotars.run({ manifest, sound });
+  evotars.updateSettings(settings);
 
   setTimeout(() => {
-    dudes.processMessage({
+    evotars.processMessage({
       message: 'Hello!',
       userId: '1',
       emotes: [],

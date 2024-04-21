@@ -6,21 +6,22 @@ import {
   UserActionEntity,
 } from './types';
 import { AppOptions, app } from './app';
-import { dudesManager } from './services/evotarsManager';
+import { evotarsManager } from './services/evotarsManager';
 
 export class Evotars {
   private isRendered = false;
 
   constructor(private readonly root: HTMLElement) {}
 
-  processMessage = (data: MessageEntity) => dudesManager.processMessage(data);
+  processMessage = (data: MessageEntity) => evotarsManager.processMessage(data);
 
-  processAction = (data: UserActionEntity) => dudesManager.processAction(data);
+  processAction = (data: UserActionEntity) =>
+    evotarsManager.processAction(data);
 
   processChatters = (data: TwitchChatterEntity[]) =>
-    dudesManager.processChatters(data);
+    evotarsManager.processChatters(data);
 
-  processRaid = (data: RaidData) => dudesManager.processRaid(data);
+  processRaid = (data: RaidData) => evotarsManager.processRaid(data);
 
   updateSettings(data: SettingsEntity) {
     app.updateSettings(data);

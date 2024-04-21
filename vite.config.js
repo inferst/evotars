@@ -11,6 +11,7 @@ export default defineConfig({
       name: 'evotars',
       fileName: 'evotars',
     },
+    copyPublicDir: false,
     rollupOptions: {
       external: [...Object.keys(pkg.dependencies)],
       output: {

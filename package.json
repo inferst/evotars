@@ -1,6 +1,18 @@
 {
+  "version": "0.0.3",
   "name": "evotars",
-  "version": "0.0.2",
+  "description": "Show animated characters on stream",
+  "author": "Mikhail Morozov",
+  "url": "https://github.com/inferst/evotars",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inferst/evotars"
+  },
+  "keywords": [
+    "stream",
+    "avatars",
+    "chatters"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -8,7 +20,9 @@
     "lint": "tsc --noEmit"
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "README.md"
   ],
   "main": "./dist/evotars.umd.cjs",
   "exports": {
@@ -20,7 +34,6 @@
   "type": "module",
   "types": "./dist/index.d.ts",
   "devDependencies": {
-    "@types/node": "^20.12.7",
     "@types/tinycolor2": "^1.4.6",
     "typescript": "^5.0.2",
     "vite": "^5.2.9",
@@ -29,7 +42,6 @@
   "dependencies": {
     "@tweenjs/tween.js": "^23.1.1",
     "pixi.js": "^7.3.1",
-    "tinycolor2": "^1.6.0",
-    "zod": "^3.22.5"
+    "tinycolor2": "^1.6.0"
   }
 }

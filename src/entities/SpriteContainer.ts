@@ -2,25 +2,25 @@ import * as PIXI from 'pixi.js';
 import { FIXED_DELTA_TIME } from '../config/constants';
 import { Point } from '../helpers/types';
 import {
-  DudeLayerAnimatedSprite,
-  DudeSpriteLayers,
+  EvotarLayerAnimatedSprite,
+  EvotarSpriteLayers,
 } from '../services/spriteProvider';
-import { DEFAULT_DUDE_SCALE } from './Dude';
+import { DEFAULT_DUDE_SCALE } from './Evotar';
 
-export type DudeSpriteContainerProps = {
+export type EvotarSpriteContainerProps = {
   color: {
-    [key in DudeSpriteLayers]?: PIXI.Color;
+    [key in EvotarSpriteLayers]?: PIXI.Color;
   };
   scale: Point;
   play: boolean;
 };
 
-export class DudeSpriteContainer {
+export class EvotarSpriteContainer {
   public container: PIXI.Container = new PIXI.Container();
 
-  public sprites: DudeLayerAnimatedSprite[];
+  public sprites: EvotarLayerAnimatedSprite[];
 
-  constructor(sprites: DudeLayerAnimatedSprite[]) {
+  constructor(sprites: EvotarLayerAnimatedSprite[]) {
     this.sprites = sprites;
 
     this.container.sortableChildren = true;
@@ -38,7 +38,7 @@ export class DudeSpriteContainer {
     }
   }
 
-  public update(props: DudeSpriteContainerProps): void {
+  public update(props: EvotarSpriteContainerProps): void {
     for (const layer of this.sprites) {
       if (props.play) {
         layer.sprite.update(FIXED_DELTA_TIME * 0.06);

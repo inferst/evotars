@@ -4,11 +4,11 @@ import {
   SettingsEntity,
   TwitchChatterEntity,
   UserActionEntity,
-} from "./types";
-import { AppOptions, app } from "./app";
-import { dudesManager } from "./services/dudesManager";
+} from './types';
+import { AppOptions, app } from './app';
+import { dudesManager } from './services/evotarsManager';
 
-export class Dudes {
+export class Evotars {
   private isRendered = false;
 
   constructor(private readonly root: HTMLElement) {}

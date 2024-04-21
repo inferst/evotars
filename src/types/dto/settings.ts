@@ -1,5 +1,5 @@
 export type SettingsEntity = {
-  showAnonymousDudes?: boolean;
-  fallingDudes?: boolean;
+  showAnonymousEvotars?: boolean;
+  fallingEvotars?: boolean;
   fallingRaiders?: boolean;
 };

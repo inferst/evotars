@@ -1,10 +1,10 @@
-import * as PIXI from "pixi.js";
-import { Dude } from "./entities/Dude";
-import { timers } from "./helpers/timer";
-import { assetsLoader } from "./services/assetsLoader";
-import { dudesManager } from "./services/dudesManager";
-import { SoundManifest, soundService } from "./services/soundService";
-import { SettingsEntity } from "./types";
+import * as PIXI from 'pixi.js';
+import { Evotar } from './entities/Evotar';
+import { timers } from './helpers/timer';
+import { assetsLoader } from './services/assetsLoader';
+import { dudesManager } from './services/evotarsManager';
+import { SoundManifest, soundService } from './services/soundService';
+import { SettingsEntity } from './types';
 
 export type AppOptions = {
   manifest: PIXI.AssetsManifest;
@@ -13,7 +13,7 @@ export type AppOptions = {
 
 export class App {
   public stage: PIXI.Container = new PIXI.Container();
-  public dudes: Record<string, Dude> = {};
+  public dudes: Record<string, Evotar> = {};
 
   public chatterIds: string[] = [];
 
@@ -40,8 +40,8 @@ export class App {
     this.stage.sortableChildren = true;
 
     dudesManager.subscribe({
-      onAdd: (dude: Dude) => this.stage.addChild(dude.container),
-      onDelete: (dude: Dude) => {
+      onAdd: (dude: Evotar) => this.stage.addChild(dude.container),
+      onDelete: (dude: Evotar) => {
         this.stage.removeChild(dude.container);
         this.stage.removeChild(dude.trail.container);
       },

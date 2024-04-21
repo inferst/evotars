@@ -3,11 +3,11 @@ import { Point } from '../helpers/types';
 import { Tween } from '@tweenjs/tween.js';
 import * as PIXI from 'pixi.js';
 
-export type DudeMesageProps = {
+export type EvotarMesageProps = {
   position: Point;
 };
 
-export class DudeMessage {
+export class EvotarMessage {
   public container: PIXI.Container = new PIXI.Container();
   public animated: PIXI.Container = new PIXI.Container();
 
@@ -51,7 +51,7 @@ export class DudeMessage {
       : text.text;
   }
 
-  public update(props: DudeMesageProps): void {
+  public update(props: EvotarMesageProps): void {
     this.timer?.tick();
 
     this.showTween?.update();
@@ -99,7 +99,7 @@ export class DudeMessage {
       roundedRect.y,
       roundedRect.w,
       roundedRect.h,
-      this.borderRadius
+      this.borderRadius,
     );
 
     box.drawPolygon(
@@ -114,7 +114,7 @@ export class DudeMessage {
       {
         x: roundedRect.x + roundedRect.w / 2,
         y: roundedRect.y + roundedRect.h + 10 - 4,
-      }
+      },
     );
 
     box.endFill();

@@ -7,14 +7,29 @@
     "preview": "vite preview",
     "lint": "tsc --noEmit"
   },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/evotars.umd.cjs",
+  "exports": {
+    ".": {
+      "import": "./dist/evotars.js",
+      "require": "./dist/evotars.umd.cjs"
+    }
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
   "devDependencies": {
+    "@types/node": "^20.12.7",
     "@types/tinycolor2": "^1.4.6",
     "typescript": "^5.0.2",
-    "vite": "^5.2.9"
+    "vite": "^5.2.9",
+    "vite-plugin-dts": "^3.8.3"
   },
   "dependencies": {
     "@tweenjs/tween.js": "^23.1.1",
     "pixi.js": "^7.3.1",
+    "tinycolor2": "^1.6.0",
     "zod": "^3.22.5"
   }
 }

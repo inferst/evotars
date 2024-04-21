@@ -4,21 +4,21 @@ import { app } from '../app';
 import { SpriteConfig } from '../config/config';
 import { FIXED_DELTA_TIME } from '../config/constants';
 import { Timer } from '../helpers/timer';
-import { dudesManager } from '../services/dudesManager';
+import { dudesManager } from '../services/evotarsManager';
 import { soundService } from '../services/soundService';
 import {
-  DudeSpriteLayers,
-  DudeSpriteTags,
-  DudeTagAnimatedSprites,
+  EvotarSpriteLayers,
+  EvotarSpriteTags,
+  EvotarTagAnimatedSprites,
   spriteProvider,
 } from '../services/spriteProvider';
-import { DudeEmoteSpitter } from './DudeEmoteSpitter';
-import { DudeMessage } from './DudeMessage';
-import { DudeName } from './DudeName';
-import { DudeSpriteContainer } from './DudeSpriteContainer';
-import { DudeTrailEffect } from './DudeTrailEffect';
+import { EvotarEmoteSpitter } from './EmoteSpitter';
+import { EvotarMessage } from './Message';
+import { EvotarName } from './Name';
+import { EvotarSpriteContainer } from './SpriteContainer';
+import { EvotarTrailEffect } from './TrailEffect';
 
-export type DudeProps = {
+export type EvotarProps = {
   name?: string;
   sprite?: SpriteConfig;
   color?: PIXI.Color;
@@ -28,17 +28,17 @@ export type DudeProps = {
   zIndex?: number;
 };
 
-export type DudeSpawnProps = {
+export type EvotarSpawnProps = {
   isFalling?: boolean;
   positionX?: number;
   onComplete?: () => void;
 };
 
-export type DudeDepawnProps = {
+export type EvotarDepawnProps = {
   onComplete?: () => void;
 };
 
-type DudeState = Required<DudeProps>;
+type EvotarState = Required<EvotarProps>;
 
 type UserProps = {
   color?: PIXI.Color;
@@ -46,12 +46,12 @@ type UserProps = {
 
 export const DEFAULT_DUDE_SCALE = 4;
 
-export class Dude {
+export class Evotar {
   public container: PIXI.Container = new PIXI.Container();
 
   private userState: UserProps = {};
 
-  private state: DudeState = {
+  private state: EvotarState = {
     name: '',
     sprite: {
       name: 'dude',
@@ -75,23 +75,23 @@ export class Dude {
     zIndex: 0,
   };
 
-  private animationState?: DudeSpriteTags;
+  private animationState?: EvotarSpriteTags;
 
   // TODO: Refactor sprite initializing, move logic to separate file
-  private sprite?: DudeSpriteContainer;
+  private sprite?: EvotarSpriteContainer;
 
-  private tagSprites: DudeTagAnimatedSprites =
+  private tagSprites: EvotarTagAnimatedSprites =
     spriteProvider.createTagAnimatedSprites(this.state.sprite.name);
 
-  public trail: DudeTrailEffect = new DudeTrailEffect();
+  public trail: EvotarTrailEffect = new EvotarTrailEffect();
 
-  private name: DudeName = new DudeName();
+  private name: EvotarName = new EvotarName();
 
-  private message: DudeMessage = new DudeMessage(() => {
-    this.state.zIndex = dudesManager.zIndexDudeMax(this.container.zIndex);
+  private message: EvotarMessage = new EvotarMessage(() => {
+    this.state.zIndex = dudesManager.zIndexEvotarMax(this.container.zIndex);
   });
 
-  private emoteSpitter: DudeEmoteSpitter = new DudeEmoteSpitter();
+  private emoteSpitter: EvotarEmoteSpitter = new EvotarEmoteSpitter();
 
   private velocity: PIXI.IPointData = {
     x: 0,
@@ -120,14 +120,14 @@ export class Dude {
 
   fadeTween?: TWEEN.Tween<PIXI.Container>;
 
-  scaleTween?: TWEEN.Tween<Dude>;
+  scaleTween?: TWEEN.Tween<Evotar>;
 
-  constructor(props: DudeProps = {}) {
+  constructor(props: EvotarProps = {}) {
     this.container.addChild(this.name.text);
     this.container.addChild(this.emoteSpitter.container);
     this.container.addChild(this.message.container);
 
-    void this.setAnimationState(DudeSpriteTags.Idle);
+    void this.setAnimationState(EvotarSpriteTags.Idle);
 
     if (props.sprite) {
       this.setSprite(props.sprite);
@@ -137,12 +137,12 @@ export class Dude {
 
     this.stateTimer = new Timer(5000, () => {
       if (!this.isJumping) {
-        this.setAnimationState(DudeSpriteTags.Run);
+        this.setAnimationState(EvotarSpriteTags.Run);
       }
     });
   }
 
-  spawn(props: DudeSpawnProps = { isFalling: false }): void {
+  spawn(props: EvotarSpawnProps = { isFalling: false }): void {
     const collider = this.state.sprite.collider;
     const fallingStartY = -(collider.y + collider.h - this.state.sprite.h / 2);
     const spawnY = props.isFalling ? fallingStartY : app.renderer.height;
@@ -160,7 +160,7 @@ export class Dude {
     this.state.direction = Math.random() > 0.5 ? 1 : -1;
 
     if (!props.isFalling) {
-      const zIndex = dudesManager.zIndexDudeMin(this.container.zIndex);
+      const zIndex = dudesManager.zIndexEvotarMin(this.container.zIndex);
 
       this.state.zIndex = zIndex;
       this.container.alpha = 0;
@@ -172,7 +172,7 @@ export class Dude {
     }
   }
 
-  despawn(props: DudeDepawnProps = {}): void {
+  despawn(props: EvotarDepawnProps = {}): void {
     if (this.fadeTween && this.fadeTween.isPlaying()) {
       return;
     }
@@ -222,7 +222,7 @@ export class Dude {
       this.velocity.x = this.state.direction * (options.velocityX ?? 3.5);
       this.velocity.y = options.velocityY ?? -8;
 
-      this.setAnimationState(DudeSpriteTags.Jump);
+      this.setAnimationState(EvotarSpriteTags.Jump);
 
       soundService.play('jump');
     }
@@ -249,7 +249,7 @@ export class Dude {
     }
   }
 
-  setProps(props: DudeProps) {
+  setProps(props: EvotarProps) {
     if (props.sprite) {
       this.setSprite(props.sprite);
     }
@@ -285,15 +285,15 @@ export class Dude {
     } else {
       if (this.stateTimer?.isCompleted) {
         this.stateTimer = new Timer(Math.random() * 5000, () => {
-          if (this.animationState == DudeSpriteTags.Idle) {
-            this.setAnimationState(DudeSpriteTags.Run);
-          } else if (this.animationState == DudeSpriteTags.Run) {
-            this.setAnimationState(DudeSpriteTags.Idle);
+          if (this.animationState == EvotarSpriteTags.Idle) {
+            this.setAnimationState(EvotarSpriteTags.Run);
+          } else if (this.animationState == EvotarSpriteTags.Run) {
+            this.setAnimationState(EvotarSpriteTags.Idle);
           }
         });
       }
 
-      if (this.animationState == DudeSpriteTags.Run) {
+      if (this.animationState == EvotarSpriteTags.Run) {
         const speed = this.runSpeed * this.state.direction;
         this.velocity.x = speed * FIXED_DELTA_TIME;
       }
@@ -309,21 +309,21 @@ export class Dude {
 
         position.y = app.renderer.height;
 
-        if (this.animationState == DudeSpriteTags.Fall) {
-          this.setAnimationState(DudeSpriteTags.Land);
+        if (this.animationState == EvotarSpriteTags.Fall) {
+          this.setAnimationState(EvotarSpriteTags.Land);
           this.landTimer = new Timer(200, () => {
-            this.setAnimationState(DudeSpriteTags.Idle);
+            this.setAnimationState(EvotarSpriteTags.Idle);
             this.isJumping = false;
           });
         }
       }
 
       if (this.velocity.y > 0) {
-        this.setAnimationState(DudeSpriteTags.Fall);
+        this.setAnimationState(EvotarSpriteTags.Fall);
       }
     }
 
-    if (this.animationState != DudeSpriteTags.Idle || this.isDashing) {
+    if (this.animationState != EvotarSpriteTags.Idle || this.isDashing) {
       const halfSpriteWidth = (collider.w / 2) * this.state.scale;
 
       const left = this.container.x - halfSpriteWidth < 0;
@@ -390,7 +390,7 @@ export class Dude {
     if (this.sprite) {
       this.sprite.update({
         color: {
-          [DudeSpriteLayers.Body]: this.userState.color
+          [EvotarSpriteLayers.Body]: this.userState.color
             ? this.userState.color
             : this.state.color,
         },
@@ -425,7 +425,10 @@ export class Dude {
     }
   }
 
-  async setAnimationState(state: DudeSpriteTags, force = false): Promise<void> {
+  async setAnimationState(
+    state: EvotarSpriteTags,
+    force = false,
+  ): Promise<void> {
     if (this.animationState == state && !force) {
       return;
     }
@@ -439,7 +442,7 @@ export class Dude {
     // TODO: Refactor sprite initializing, move logic to separate file
     const layerAnimatedSprites = this.tagSprites[this.animationState];
 
-    this.sprite = new DudeSpriteContainer(layerAnimatedSprites);
+    this.sprite = new EvotarSpriteContainer(layerAnimatedSprites);
 
     this.trail.setSprite(this.sprite);
 

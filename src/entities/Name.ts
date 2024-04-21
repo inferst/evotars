@@ -1,13 +1,13 @@
 import { Point, Rect } from '../helpers/types';
 import * as PIXI from 'pixi.js';
 
-export type DudeNameProps = {
+export type EvotarNameProps = {
   name: string;
   position: Point;
   isVisible: boolean;
 };
 
-export class DudeName {
+export class EvotarName {
   public text: PIXI.Text = new PIXI.Text(undefined, {
     fontFamily: 'Rubik',
     fontSize: 18,
@@ -23,7 +23,7 @@ export class DudeName {
     this.text.zIndex = 100;
   }
 
-  update(props: DudeNameProps) {
+  update(props: EvotarNameProps) {
     this.text.text = props.name ?? '';
     this.text.visible = props.isVisible;
     this.text.position.x = props.position.x ?? this.text.position.x;

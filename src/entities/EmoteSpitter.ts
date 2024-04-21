@@ -3,11 +3,11 @@ import { Point } from '../helpers/types';
 import { Timer } from '../helpers/timer';
 import { FIXED_DELTA_TIME } from '../config/constants';
 
-export type DudeEmoteSpitterProps = {
+export type EvotarEmoteSpitterProps = {
   position: Point;
 };
 
-export class DudeEmoteSpitter {
+export class EvotarEmoteSpitter {
   public container: PIXI.Container = new PIXI.Container();
 
   private emotes: PIXI.Sprite[] = [];
@@ -25,7 +25,7 @@ export class DudeEmoteSpitter {
     this.emotes.push(sprite);
   }
 
-  public update(props: DudeEmoteSpitterProps): void {
+  public update(props: EvotarEmoteSpitterProps): void {
     this.timer?.tick();
 
     if (!this.timer || this.timer.isCompleted) {

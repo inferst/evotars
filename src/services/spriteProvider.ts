@@ -1,21 +1,21 @@
 import { AsepriteData, assetsLoader } from './assetsLoader';
 import * as PIXI from 'pixi.js';
 
-export type DudeLayerAnimatedSprite = {
-  layer: DudeSpriteLayers;
+export type EvotarLayerAnimatedSprite = {
+  layer: EvotarSpriteLayers;
   sprite: PIXI.AnimatedSprite;
 };
 
-export type DudeTagAnimatedSprites = {
-  [tag in DudeSpriteTags]: DudeLayerAnimatedSprite[];
+export type EvotarTagAnimatedSprites = {
+  [tag in EvotarSpriteTags]: EvotarLayerAnimatedSprite[];
 };
 
-export enum DudeSpriteLayers {
+export enum EvotarSpriteLayers {
   Body = 'Body',
   Eyes = 'Eyes',
 }
 
-export enum DudeSpriteTags {
+export enum EvotarSpriteTags {
   Idle = 'Idle',
   Jump = 'Jump',
   Fall = 'Fall',
@@ -35,13 +35,13 @@ export class SpriteProvider {
   public createLayerAnimatedSprites(
     name: string,
     sheet: PIXI.Spritesheet<AsepriteData>,
-    frameTag: FrameTag
-  ): DudeLayerAnimatedSprite[] {
+    frameTag: FrameTag,
+  ): EvotarLayerAnimatedSprite[] {
     const layers = sheet.data.meta.layers;
 
     if (layers) {
       const textures = Object.fromEntries<PIXI.FrameObject[]>(
-        layers.map((layer) => [layer.name, []])
+        layers.map((layer) => [layer.name, []]),
       );
 
       for (let i = frameTag.from; i <= frameTag.to; i++) {
@@ -59,33 +59,30 @@ export class SpriteProvider {
       return Object.entries(textures).map((entry) => {
         const sprite = new PIXI.AnimatedSprite(entry[1]);
         sprite.texture.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
-        return { layer: entry[0] as DudeSpriteLayers, sprite };
+        return { layer: entry[0] as EvotarSpriteLayers, sprite };
       });
     }
 
     throw Error("Sprite sheet doesn't have layers");
   }
 
-  public createTagAnimatedSprites(sheetName: string): DudeTagAnimatedSprites {
+  public createTagAnimatedSprites(sheetName: string): EvotarTagAnimatedSprites {
     if (!sheetName) {
       throw Error('Sheet is not defined');
     }
 
     const sheet = assetsLoader.sheets[sheetName];
 
-    return (sheet.data.meta.frameTags ?? []).reduce<DudeTagAnimatedSprites>(
+    return (sheet.data.meta.frameTags ?? []).reduce<EvotarTagAnimatedSprites>(
       (sprites, tag) => {
         if (tag && tag.name) {
-          sprites[tag.name as DudeSpriteTags] = this.createLayerAnimatedSprites(
-            sheetName,
-            sheet,
-            tag
-          );
+          sprites[tag.name as EvotarSpriteTags] =
+            this.createLayerAnimatedSprites(sheetName, sheet, tag);
         }
 
         return sprites;
       },
-      {} as DudeTagAnimatedSprites
+      {} as EvotarTagAnimatedSprites,
     );
   }
 }

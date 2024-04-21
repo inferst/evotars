@@ -1,18 +1,18 @@
 import * as PIXI from 'pixi.js';
 import { app } from '../app';
 import { Timer } from '../helpers/timer';
-import { DudeSpriteContainer } from './DudeSpriteContainer';
+import { EvotarSpriteContainer } from './SpriteContainer';
 
-export type DudeTrailEffectProps = {
+export type EvotarTrailEffectProps = {
   play: boolean;
 };
 
-export class DudeTrailEffect {
+export class EvotarTrailEffect {
   public container: PIXI.Container = new PIXI.Container();
 
   private timer?: Timer;
 
-  private sprite?: DudeSpriteContainer;
+  private sprite?: EvotarSpriteContainer;
 
   private opacityStep = 0.1;
 
@@ -22,11 +22,11 @@ export class DudeTrailEffect {
     app.stage.addChild(this.container);
   }
 
-  public setSprite(sprite: DudeSpriteContainer) {
+  public setSprite(sprite: EvotarSpriteContainer) {
     this.sprite = sprite;
   }
 
-  public update(props: DudeTrailEffectProps): void {
+  public update(props: EvotarTrailEffectProps): void {
     for (const child of this.container.children) {
       if (child.alpha > 0) {
         child.alpha = child.alpha - this.opacityStep;
@@ -53,12 +53,12 @@ export class DudeTrailEffect {
 
           container.scale.set(
             this.sprite.container.scale.x,
-            this.sprite.container.scale.y
+            this.sprite.container.scale.y,
           );
 
           container.pivot.set(
             this.sprite.container.pivot.x,
-            this.sprite.container.pivot.y
+            this.sprite.container.pivot.y,
           );
 
           const globalPosition = this.sprite.container.getGlobalPosition();

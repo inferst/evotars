@@ -1,14 +1,18 @@
 import * as PIXI from 'pixi.js';
 import { Evotar } from './entities/Evotar';
 import { timers } from './helpers/timer';
-import { assetsLoader } from './services/assetsLoader';
-import { evotarsManager } from './services/evotarsManager';
-import { SoundManifest, soundService } from './services/soundService';
+import { evotarsManager } from './evotarsManager';
+import { SoundOptions, soundService } from './services/soundService';
 import { SettingsEntity } from './types';
+import { SpriteLoaderFn, spriteService } from './services/spriteService';
 
 export type AppOptions = {
-  manifest: PIXI.AssetsManifest;
-  sound: SoundManifest;
+  font?: {
+    name: string;
+    src?: string;
+  };
+  sounds?: SoundOptions;
+  spriteLoaderFn: SpriteLoaderFn;
 };
 
 export class App {
@@ -21,9 +25,12 @@ export class App {
 
   public renderer!: PIXI.Renderer;
 
-  public async init(options: AppOptions, element: HTMLElement): Promise<void> {
-    await assetsLoader.load(options.manifest);
-    soundService.init(options.sound);
+  public async initialize(
+    element: HTMLElement,
+    options: AppOptions,
+  ): Promise<void> {
+    spriteService.initialize(options.spriteLoaderFn);
+    soundService.initialize(options.sounds);
 
     this.renderer = new PIXI.Renderer({
       width: element.clientWidth,

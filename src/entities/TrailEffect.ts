@@ -41,15 +41,16 @@ export class EvotarTrailEffect {
       const container = new PIXI.Container();
 
       if (this.sprite) {
-        for (const layer of this.sprite.sprites) {
-          const texture = layer.sprite.texture.clone();
-          const sprite = new PIXI.Sprite(texture);
+        for (const layer in this.sprite.sprites) {
+          const sprite = this.sprite.sprites[layer];
+          const texture = sprite.texture.clone();
+          const trailSprite = new PIXI.Sprite(texture);
 
-          sprite.anchor.set(0.5, 0.5);
-          sprite.alpha = layer.sprite.alpha;
-          sprite.tint = layer.sprite.tint;
+          trailSprite.anchor.set(0.5, 0);
+          trailSprite.alpha = sprite.alpha;
+          trailSprite.tint = sprite.tint;
 
-          container.addChild(sprite);
+          container.addChild(trailSprite);
 
           container.scale.set(
             this.sprite.container.scale.x,

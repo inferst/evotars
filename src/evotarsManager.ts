@@ -7,13 +7,12 @@ import {
   isDashUserActionEntity,
   isGrowUserActionEntity,
   isJumpUserActionEntity,
-} from '../types';
+} from './types';
 import * as PIXI from 'pixi.js';
 import tinycolor from 'tinycolor2';
-import { app } from '../app';
-import { config } from '../config/config';
-import { Evotar, EvotarProps } from '../entities/Evotar';
-import { timers } from '../helpers/timer';
+import { app } from './app';
+import { Evotar, EvotarProps } from './entities/Evotar';
+import { timers } from './helpers/timer';
 
 type EvotarsManagerSubscription = {
   onAdd: (evotar: Evotar) => void;
@@ -56,13 +55,11 @@ class EvotarsManager {
 
     const time = (1 / data.viewers) * 5000;
 
-    const spriteConfig = config.sprites['agent'];
-
     for (let i = 0; i < data.viewers; i++) {
       const evotar = new Evotar({
         isAnonymous: true,
         zIndex: -1,
-        sprite: spriteConfig,
+        sprite: 'agent',
         color: new PIXI.Color(data.broadcaster.info.color),
       });
 
@@ -191,10 +188,8 @@ class EvotarsManager {
       isAnonymous: false,
     };
 
-    const spriteConfig = sprite ? config.sprites[sprite] : null;
-
-    if (spriteConfig) {
-      props.sprite = spriteConfig;
+    if (sprite) {
+      props.sprite = sprite;
     }
 
     if (color) {

@@ -1,3 +1,5 @@
+import { AppOptions, app } from './app';
+import { evotarsManager } from './evotarsManager';
 import {
   MessageEntity,
   RaidData,
@@ -5,13 +7,14 @@ import {
   TwitchChatterEntity,
   UserActionEntity,
 } from './types';
-import { AppOptions, app } from './app';
-import { evotarsManager } from './services/evotarsManager';
 
 export class Evotars {
   private isRendered = false;
 
-  constructor(private readonly root: HTMLElement) {}
+  constructor(
+    private readonly root: HTMLElement,
+    private readonly options: AppOptions,
+  ) {}
 
   processMessage = (data: MessageEntity) => evotarsManager.processMessage(data);
 
@@ -27,7 +30,7 @@ export class Evotars {
     app.updateSettings(data);
   }
 
-  async run(options: AppOptions) {
+  async run() {
     if (this.isRendered) {
       return;
     }
@@ -35,7 +38,7 @@ export class Evotars {
     this.isRendered = true;
 
     const init = async (): Promise<void> => {
-      await app.init(options, this.root);
+      await app.initialize(this.root, this.options);
 
       let lastTime = performance.now();
       let lastFrame = -1;

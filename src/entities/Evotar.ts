@@ -1,17 +1,16 @@
 import * as TWEEN from '@tweenjs/tween.js';
 import * as PIXI from 'pixi.js';
 import { app } from '../app';
-import { SpriteConfig } from '../config/config';
 import { FIXED_DELTA_TIME } from '../config/constants';
 import { Timer } from '../helpers/timer';
-import { evotarsManager } from '../services/evotarsManager';
+import { evotarsManager } from '../evotarsManager';
 import { soundService } from '../services/soundService';
 import {
-  EvotarSpriteLayers,
+  EvotarSpriteData,
   EvotarSpriteTags,
-  EvotarTagAnimatedSprites,
-  spriteProvider,
-} from '../services/spriteProvider';
+  EvotarAnimatedSprites,
+  spriteService,
+} from '../services/spriteService';
 import { EvotarEmoteSpitter } from './EmoteSpitter';
 import { EvotarMessage } from './Message';
 import { EvotarName } from './Name';
@@ -20,7 +19,7 @@ import { EvotarTrailEffect } from './TrailEffect';
 
 export type EvotarProps = {
   name?: string;
-  sprite?: SpriteConfig;
+  sprite?: string;
   color?: PIXI.Color;
   direction?: number;
   scale?: number;
@@ -44,8 +43,6 @@ type UserProps = {
   color?: PIXI.Color;
 };
 
-export const DEFAULT_EVOTAR_SCALE = 4;
-
 export class Evotar {
   public container: PIXI.Container = new PIXI.Container();
 
@@ -53,35 +50,33 @@ export class Evotar {
 
   private state: EvotarState = {
     name: '',
-    sprite: {
-      name: 'dude',
-      w: 32,
-      h: 32,
-      collider: {
-        x: 8,
-        y: 7,
-        w: 16,
-        h: 18,
-      },
-      pivot: {
-        x: 0,
-        y: 9,
-      },
-    },
+    sprite: '',
     color: new PIXI.Color('#969696'),
     direction: 1,
-    scale: DEFAULT_EVOTAR_SCALE,
+    scale: 1,
     isAnonymous: false,
     zIndex: 0,
   };
 
-  private animationState?: EvotarSpriteTags;
+  private animationState: EvotarSpriteTags = EvotarSpriteTags.Idle;
 
   // TODO: Refactor sprite initializing, move logic to separate file
   private sprite?: EvotarSpriteContainer;
 
-  private tagSprites: EvotarTagAnimatedSprites =
-    spriteProvider.createTagAnimatedSprites(this.state.sprite.name);
+  private spriteData: EvotarSpriteData = {
+    collider: {
+      x: 0,
+      y: 0,
+      w: 0,
+      h: 0,
+    },
+    size: { w: 0, h: 0 },
+    scale: 1,
+    flip: false,
+    colored: [],
+  };
+
+  private animatedSprites?: EvotarAnimatedSprites;
 
   public trail: EvotarTrailEffect = new EvotarTrailEffect();
 
@@ -127,8 +122,6 @@ export class Evotar {
     this.container.addChild(this.emoteSpitter.container);
     this.container.addChild(this.message.container);
 
-    void this.setAnimationState(EvotarSpriteTags.Idle);
-
     if (props.sprite) {
       this.setSprite(props.sprite);
     }
@@ -143,16 +136,21 @@ export class Evotar {
   }
 
   spawn(props: EvotarSpawnProps = { isFalling: false }): void {
-    const collider = this.state.sprite.collider;
-    const fallingStartY = -(collider.y + collider.h - this.state.sprite.h / 2);
+    const collider = this.spriteData.collider;
+    const fallingStartY = -(
+      collider.y +
+      collider.h -
+      this.spriteData.size.h / 2
+    );
     const spawnY = props.isFalling ? fallingStartY : app.renderer.height;
-    const spriteWidth = this.state.sprite.w * this.state.scale;
+    const spriteWidth =
+      this.spriteData.size.w * this.state.scale * this.spriteData.scale;
 
     const x =
       props.positionX != undefined
         ? props.positionX * app.renderer.width
         : Math.random() * (app.renderer.width - spriteWidth) + spriteWidth / 2;
-    const y = spawnY * this.state.scale;
+    const y = spawnY * this.state.scale * this.spriteData.scale;
 
     this.container.x = x;
     this.container.y = y;
@@ -196,14 +194,11 @@ export class Evotar {
     }
 
     this.scaleTween = new TWEEN.Tween(this)
-      .to(
-        { state: { scale: DEFAULT_EVOTAR_SCALE * (options.value ?? 2) } },
-        2000,
-      )
+      .to({ state: { scale: options.value ?? 2 } }, 2000)
       .onComplete(() => {
         this.scaleTimer = new Timer((options.duration ?? 10) * 1000, () => {
           this.scaleTween = new TWEEN.Tween(this)
-            .to({ state: { scale: DEFAULT_EVOTAR_SCALE } }, 2000)
+            .to({ state: { scale: 1 } }, 2000)
             .start();
         });
       })
@@ -242,13 +237,13 @@ export class Evotar {
     }
   }
 
-  setSprite(sprite: SpriteConfig) {
-    if (sprite.name && sprite.name != this.state.sprite.name) {
-      this.tagSprites = spriteProvider.createTagAnimatedSprites(sprite.name);
+  async setSprite(sprite: string) {
+    if (sprite && sprite != this.state.sprite) {
+      const spriteData = await spriteService.getSpriteData(sprite);
+      this.spriteData = spriteData.data;
+      this.animatedSprites = spriteService.getAnimatedSprites(sprite);
 
-      if (this.animationState) {
-        this.setAnimationState(this.animationState, true);
-      }
+      this.setAnimationState(this.animationState, true);
     }
   }
 
@@ -265,7 +260,7 @@ export class Evotar {
   }
 
   private move() {
-    const collider = this.state.sprite.collider;
+    const collider = this.spriteData.collider;
 
     const position = {
       x: this.container.position.x,
@@ -327,7 +322,8 @@ export class Evotar {
     }
 
     if (this.animationState != EvotarSpriteTags.Idle || this.isDashing) {
-      const halfSpriteWidth = (collider.w / 2) * this.state.scale;
+      const halfSpriteWidth =
+        (collider.w / 2) * this.state.scale * this.spriteData.scale;
 
       const left = this.container.x - halfSpriteWidth < 0;
       const right = this.container.x + halfSpriteWidth > app.renderer.width;
@@ -364,15 +360,13 @@ export class Evotar {
 
     this.container.zIndex = this.state.zIndex;
 
-    const collider = this.state.sprite.collider;
+    const collider = this.spriteData.collider;
 
     this.name.update({
       name: this.state.name,
       isVisible: !this.state.isAnonymous,
       position: {
-        y:
-          -(this.state.sprite.h / 2 - collider.y + this.state.sprite.pivot.y) *
-          this.state.scale,
+        y: -collider.h * this.state.scale * this.spriteData.scale,
       },
     });
 
@@ -391,15 +385,20 @@ export class Evotar {
     this.move();
 
     if (this.sprite) {
+      const colors = Object.fromEntries(
+        this.spriteData.colored.map((layer) => [
+          layer,
+          this.userState.color ? this.userState.color : this.state.color,
+        ]),
+      );
+
+      const direction = this.spriteData.flip ? this.state.direction : 1;
+
       this.sprite.update({
-        color: {
-          [EvotarSpriteLayers.Body]: this.userState.color
-            ? this.userState.color
-            : this.state.color,
-        },
+        color: colors,
         scale: {
-          x: this.state.direction * this.state.scale,
-          y: this.state.scale,
+          x: direction * this.state.scale * this.spriteData.scale,
+          y: this.state.scale * this.spriteData.scale,
         },
         play: !this.isDashing,
       });
@@ -436,22 +435,28 @@ export class Evotar {
       return;
     }
 
+    // TODO: Refactor sprite initializing, move logic to separate file
+    if (!this.animatedSprites) {
+      return;
+    }
+
     this.animationState = state;
 
     if (this.sprite) {
       this.container.removeChild(this.sprite.container);
     }
 
-    // TODO: Refactor sprite initializing, move logic to separate file
-    const layerAnimatedSprites = this.tagSprites[this.animationState];
+    const animatedSprites =
+      this.animatedSprites![this.animationState] ??
+      this.animatedSprites[EvotarSpriteTags.Idle];
 
-    this.sprite = new EvotarSpriteContainer(layerAnimatedSprites);
+    this.sprite = new EvotarSpriteContainer(animatedSprites);
 
     this.trail.setSprite(this.sprite);
 
     this.sprite.container.pivot.set(
-      this.state.sprite.pivot.x,
-      this.state.sprite.pivot.y,
+      0,
+      this.spriteData.collider.y + this.spriteData.collider.h,
     );
 
     this.container.addChild(this.sprite.container);

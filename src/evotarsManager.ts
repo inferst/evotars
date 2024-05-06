@@ -7,6 +7,7 @@ import {
   isDashUserActionEntity,
   isGrowUserActionEntity,
   isJumpUserActionEntity,
+  isSpriteUserActionEntity,
 } from './types';
 import * as PIXI from 'pixi.js';
 import tinycolor from 'tinycolor2';
@@ -175,6 +176,10 @@ class EvotarsManager {
         duration: action.data.duration,
         cooldown: action.cooldown,
       });
+    }
+
+    if (isSpriteUserActionEntity(action)) {
+      evotar.setSprite(action.data.sprite);
     }
   }
 

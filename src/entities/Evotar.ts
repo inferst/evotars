@@ -122,6 +122,8 @@ export class Evotar {
     this.container.addChild(this.emoteSpitter.container);
     this.container.addChild(this.message.container);
 
+    this.container.sortableChildren = true;
+
     if (props.sprite) {
       this.setSprite(props.sprite);
     }

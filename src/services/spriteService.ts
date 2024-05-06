@@ -97,7 +97,10 @@ export class SpriteService {
 
     this.sprites[name] = {
       sheet,
-      data: sprite.data,
+      data: {
+        ...sprite.data,
+        scale: sprite.data.scale ?? 1,
+      },
     };
   }
 

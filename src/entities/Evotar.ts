@@ -117,24 +117,12 @@ export class Evotar {
 
   scaleTween?: TWEEN.Tween<Evotar>;
 
-  constructor(props: EvotarProps = {}) {
+  constructor() {
     this.container.addChild(this.name.text);
     this.container.addChild(this.emoteSpitter.container);
     this.container.addChild(this.message.container);
 
     this.container.sortableChildren = true;
-
-    if (props.sprite) {
-      this.setSprite(props.sprite);
-    }
-
-    this.state = { ...this.state, ...props };
-
-    this.stateTimer = new Timer(5000, () => {
-      if (!this.isJumping) {
-        this.setAnimationState(EvotarSpriteTags.Run);
-      }
-    });
   }
 
   spawn(props: EvotarSpawnProps = { isFalling: false }): void {
@@ -170,6 +158,12 @@ export class Evotar {
         .onComplete(props.onComplete)
         .start();
     }
+
+    this.stateTimer = new Timer(5000, () => {
+      if (!this.isJumping) {
+        this.setAnimationState(EvotarSpriteTags.Run);
+      }
+    });
   }
 
   despawn(props: EvotarDepawnProps = {}): void {
@@ -249,9 +243,9 @@ export class Evotar {
     }
   }
 
-  setProps(props: EvotarProps) {
+  async setProps(props: EvotarProps) {
     if (props.sprite) {
-      this.setSprite(props.sprite);
+      await this.setSprite(props.sprite);
     }
 
     this.state = { ...this.state, ...props };

@@ -15,11 +15,14 @@ export type EvotarSpriteData = {
   colored: string[];
 };
 
-export type SpriteLoaderFn = (name: string) => Promise<{
-  sprite: SpritesheetData;
-  data: EvotarSpriteData;
-  image: string;
-}>;
+export type SpriteLoaderFn = (name: string) => Promise<
+  | {
+      sprite: SpritesheetData;
+      data: EvotarSpriteData;
+      image: string;
+    }
+  | undefined
+>;
 
 export type Collider = {
   x: number;
@@ -86,6 +89,10 @@ export class SpriteService {
 
     const sprite = await this.spriteLoaderFn(name);
 
+    if (!sprite) {
+      return;
+    }
+
     const texture = await Assets.load(sprite.image);
 
     const sheet = new Spritesheet({
@@ -104,7 +111,7 @@ export class SpriteService {
     };
   }
 
-  public async getSpriteData(name: string): Promise<SpriteData> {
+  public async getSpriteData(name: string): Promise<SpriteData | undefined> {
     await this.loadSpriteData(name);
 
     return this.sprites[name];

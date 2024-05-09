@@ -234,8 +234,8 @@ class EvotarsManager {
 
       this.addViewer(action.userId, evotar);
     } else {
+      await evotar.setProps(props);
       this.doAction(action, evotar);
-      evotar.setProps(props);
     }
   }
 

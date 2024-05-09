@@ -236,6 +236,11 @@ export class Evotar {
   async setSprite(sprite: string) {
     if (sprite && sprite != this.state.sprite) {
       const spriteData = await spriteService.getSpriteData(sprite);
+
+      if (!spriteData) {
+        return;
+      }
+
       this.spriteData = spriteData.data;
       this.animatedSprites = spriteService.getAnimatedSprites(sprite);
 

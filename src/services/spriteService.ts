@@ -8,6 +8,7 @@ import {
 } from 'pixi.js';
 
 export type EvotarSpriteData = {
+  name: string;
   collider: Collider;
   size: SpriteSize;
   scale: number;
@@ -82,15 +83,15 @@ export class SpriteService {
     this.spriteLoaderFn = spriteLoaderFn;
   }
 
-  private async loadSpriteData(name: string): Promise<void> {
-    if (this.sprites[name]) {
-      return;
-    }
-
+  public async getSpriteData(name: string): Promise<SpriteData | undefined> {
     const sprite = await this.spriteLoaderFn(name);
 
     if (!sprite) {
       return;
+    }
+
+    if (this.sprites[name]) {
+      return this.sprites[name];
     }
 
     const texture = await Assets.load(sprite.image);
@@ -109,10 +110,6 @@ export class SpriteService {
         scale: sprite.data.scale ?? 1,
       },
     };
-  }
-
-  public async getSpriteData(name: string): Promise<SpriteData | undefined> {
-    await this.loadSpriteData(name);
 
     return this.sprites[name];
   }
@@ -126,6 +123,7 @@ export class SpriteService {
       throw Error('Sprite is not loaded');
     }
 
+    const data = this.sprites[name].data;
     const sheet = this.sprites[name].sheet;
 
     const sprites: EvotarAnimatedSprites = {};
@@ -143,7 +141,7 @@ export class SpriteService {
         for (let i = frameTag.from; i <= frameTag.to; i++) {
           const framekey = i.toString();
 
-          const key = name + '_' + layer.name + '_' + framekey;
+          const key = data.name + '_' + layer.name + '_' + framekey;
           const texture = sheet.textures[key];
           const time = sheet.data.frames[key].duration;
 

@@ -1,5 +1,5 @@
 {
-  "version": "0.0.4",
+  "version": "0.0.6",
   "name": "evotars",
   "description": "Show animated characters on stream",
   "author": "Mikhail Morozov",
@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@tweenjs/tween.js": "^23.1.1",
-    "pixi.js": "^7.3.1",
+    "pixi.js": "^7.4.2",
     "tinycolor2": "^1.6.0"
   }
 }

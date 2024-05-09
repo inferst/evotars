@@ -1,15 +1,17 @@
-export type SoundManifest = {
-  [key: string]: string;
+export type SoundOptions = {
+  jump?: {
+    src: string;
+  };
 };
 
 class SoundService {
   assets: { [key: string]: HTMLAudioElement } = {};
 
-  async init(manifest: SoundManifest) {
+  async initialize(options?: SoundOptions) {
     this.assets = Object.fromEntries(
-      Array.from(Object.entries(manifest)).map(([key, value]) => {
-        return [key, new Audio(value)];
-      })
+      Array.from(Object.entries(options ?? {})).map(([key, value]) => {
+        return [key, new Audio(value.src)];
+      }),
     );
   }
 

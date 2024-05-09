@@ -1,4 +1,4 @@
-import { UserInfo } from "./user";
+import { UserInfo } from './user';
 
 export type ActionData = Record<string, string | number | undefined>;
 
@@ -22,7 +22,7 @@ export type UserActionEntity = {
 } & ActionEntity;
 
 export type JumpUserActionEntity = {
-  name: "jump";
+  name: 'jump';
   data: {
     velocityX: number;
     velocityY: number;
@@ -30,14 +30,14 @@ export type JumpUserActionEntity = {
 } & UserActionEntity;
 
 export type ColorUserActionEntity = {
-  name: "color";
+  name: 'color';
   data: {
     color: string;
   };
 } & UserActionEntity;
 
 export type GrowUserActionEntity = {
-  name: "grow";
+  name: 'grow';
   data: {
     duration: number;
     scale: number;
@@ -45,24 +45,35 @@ export type GrowUserActionEntity = {
 } & UserActionEntity;
 
 export type DashUserActionEntity = {
-  name: "dash";
+  name: 'dash';
   data: {
     force: number;
   };
 } & UserActionEntity;
 
+export type SpriteUserActionEntity = {
+  name: 'sprite';
+  data: {
+    sprite: string;
+  };
+} & UserActionEntity;
+
 export const isJumpUserActionEntity = (
   entity: ActionEntity,
-): entity is JumpUserActionEntity => entity.name == "jump";
+): entity is JumpUserActionEntity => entity.name == 'jump';
 
 export const isColorUserActionEntity = (
   entity: ActionEntity,
-): entity is ColorUserActionEntity => entity.name == "color";
+): entity is ColorUserActionEntity => entity.name == 'color';
 
 export const isGrowUserActionEntity = (
   entity: ActionEntity,
-): entity is GrowUserActionEntity => entity.name == "grow";
+): entity is GrowUserActionEntity => entity.name == 'grow';
 
 export const isDashUserActionEntity = (
   entity: ActionEntity,
-): entity is DashUserActionEntity => entity.name == "dash";
+): entity is DashUserActionEntity => entity.name == 'dash';
+
+export const isSpriteUserActionEntity = (
+  entity: ActionEntity,
+): entity is SpriteUserActionEntity => entity.name == 'sprite';

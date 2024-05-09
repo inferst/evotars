@@ -7,13 +7,13 @@ import {
   isDashUserActionEntity,
   isGrowUserActionEntity,
   isJumpUserActionEntity,
-} from '../types';
+  isSpriteUserActionEntity,
+} from './types';
 import * as PIXI from 'pixi.js';
 import tinycolor from 'tinycolor2';
-import { app } from '../app';
-import { config } from '../config/config';
-import { Evotar, EvotarProps } from '../entities/Evotar';
-import { timers } from '../helpers/timer';
+import { app } from './app';
+import { Evotar, EvotarProps } from './entities/Evotar';
+import { timers } from './helpers/timer';
 
 type EvotarsManagerSubscription = {
   onAdd: (evotar: Evotar) => void;
@@ -56,13 +56,13 @@ class EvotarsManager {
 
     const time = (1 / data.viewers) * 5000;
 
-    const spriteConfig = config.sprites['agent'];
-
     for (let i = 0; i < data.viewers; i++) {
-      const evotar = new Evotar({
+      const evotar = new Evotar();
+
+      evotar.setProps({
         isAnonymous: true,
         zIndex: -1,
-        sprite: spriteConfig,
+        sprite: 'agent',
         color: new PIXI.Color(data.broadcaster.info.color),
       });
 
@@ -91,7 +91,8 @@ class EvotarsManager {
     };
 
     const spawnBroadcaster = () => {
-      const evotar = new Evotar(props);
+      const evotar = new Evotar();
+      evotar.setProps(props);
       this.addViewer(data.broadcaster.id, evotar);
       evotar.spawn({ isFalling: true, positionX: 0.5 });
     };
@@ -109,7 +110,7 @@ class EvotarsManager {
     }
   }
 
-  public processChatters(data: TwitchChatterEntity[]) {
+  public async processChatters(data: TwitchChatterEntity[]) {
     for (const id in this.viewers) {
       const lastMessageTime = this.lastEvotarActivity[id];
       const spawnedRecently =
@@ -139,7 +140,8 @@ class EvotarsManager {
             isAnonymous: !this.hasActivity(chatter.userId),
           };
 
-          const evotar = new Evotar(props);
+          const evotar = new Evotar();
+          await evotar.setProps(props);
           evotar.spawn();
 
           this.addViewer(chatter.userId, evotar);
@@ -179,6 +181,10 @@ class EvotarsManager {
         cooldown: action.cooldown,
       });
     }
+
+    if (isSpriteUserActionEntity(action)) {
+      evotar.setSprite(action.data.sprite);
+    }
   }
 
   private prepareEvotarProps(
@@ -191,20 +197,20 @@ class EvotarsManager {
       isAnonymous: false,
     };
 
-    const spriteConfig = sprite ? config.sprites[sprite] : null;
-
-    if (spriteConfig) {
-      props.sprite = spriteConfig;
+    if (sprite) {
+      props.sprite = sprite;
     }
 
     if (color) {
-      props.color = new PIXI.Color(color);
+      try {
+        props.color = new PIXI.Color(color);
+      } catch (e) {}
     }
 
     return props;
   }
 
-  public processAction(action: UserActionEntity): void {
+  public async processAction(action: UserActionEntity): Promise<void> {
     const evotar = this.viewers[action.userId];
 
     const props: EvotarProps = this.prepareEvotarProps(
@@ -214,7 +220,8 @@ class EvotarsManager {
     );
 
     if (!evotar) {
-      const evotar = new Evotar(props);
+      const evotar = new Evotar();
+      await evotar.setProps(props);
 
       evotar.spawn({
         onComplete: () => {
@@ -227,12 +234,12 @@ class EvotarsManager {
 
       this.addViewer(action.userId, evotar);
     } else {
+      await evotar.setProps(props);
       this.doAction(action, evotar);
-      evotar.setProps(props);
     }
   }
 
-  public processMessage(data: MessageEntity): void {
+  public async processMessage(data: MessageEntity): Promise<void> {
     const props: EvotarProps = this.prepareEvotarProps(
       data.info.displayName,
       data.info.color,
@@ -246,7 +253,8 @@ class EvotarsManager {
         ? !this.hasActivity(data.userId)
         : false;
 
-      evotar = new Evotar(props);
+      evotar = new Evotar();
+      await evotar.setProps(props);
       evotar.spawn({ isFalling });
 
       this.addViewer(data.userId, evotar);

@@ -1,15 +1,11 @@
 import * as PIXI from 'pixi.js';
 import { FIXED_DELTA_TIME } from '../config/constants';
 import { Point } from '../helpers/types';
-import {
-  EvotarLayerAnimatedSprite,
-  EvotarSpriteLayers,
-} from '../services/spriteProvider';
-import { DEFAULT_EVOTAR_SCALE } from './Evotar';
+import { EvotarLayerSprites } from '../services/spriteService';
 
 export type EvotarSpriteContainerProps = {
   color: {
-    [key in EvotarSpriteLayers]?: PIXI.Color;
+    [key in string]?: PIXI.Color;
   };
   scale: Point;
   play: boolean;
@@ -18,48 +14,49 @@ export type EvotarSpriteContainerProps = {
 export class EvotarSpriteContainer {
   public container: PIXI.Container = new PIXI.Container();
 
-  public sprites: EvotarLayerAnimatedSprite[];
+  public sprites: EvotarLayerSprites;
 
-  constructor(sprites: EvotarLayerAnimatedSprite[]) {
+  constructor(sprites: EvotarLayerSprites) {
     this.sprites = sprites;
 
     this.container.sortableChildren = true;
 
     let zIndex = 0;
 
-    for (const layer of this.sprites) {
-      const sprite = layer.sprite;
+    for (const layer in this.sprites) {
+      const sprite = this.sprites[layer];
       this.container.addChild(sprite);
 
       sprite.zIndex = ++zIndex;
-      sprite.anchor.set(0.5, 0.5);
+      sprite.anchor.set(0.5, 0);
       sprite.autoUpdate = false;
       sprite.play();
     }
   }
 
   public update(props: EvotarSpriteContainerProps): void {
-    for (const layer of this.sprites) {
+    for (const layer in this.sprites) {
+      const sprite = this.sprites[layer];
+
       if (props.play) {
-        layer.sprite.update(FIXED_DELTA_TIME * 0.06);
+        sprite.update(FIXED_DELTA_TIME * 0.06);
       }
 
       if (props.color) {
         for (const colorLayer in props.color) {
-          if (colorLayer == layer.layer) {
+          if (colorLayer == layer) {
             const color = props.color[colorLayer];
 
             if (color) {
-              layer.sprite.alpha = color.alpha;
-              layer.sprite.tint = color;
+              sprite.alpha = color.alpha;
+              sprite.tint = color;
             }
           }
         }
       }
 
       if (props.scale.x) {
-        layer.sprite.animationSpeed =
-          DEFAULT_EVOTAR_SCALE / Math.abs(props.scale.x);
+        sprite.animationSpeed = 4 / Math.abs(props.scale.x);
       }
     }
 

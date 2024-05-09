@@ -64,6 +64,7 @@ export class Evotar {
   private sprite?: EvotarSpriteContainer;
 
   private spriteData: EvotarSpriteData = {
+    name: 'evotar',
     collider: {
       x: 0,
       y: 0,

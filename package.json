@@ -24,7 +24,9 @@
     "LICENSE",
     "README.md"
   ],
+  "source": "./src/index.ts",
   "main": "./dist/evotars.umd.cjs",
+  "module": "./dist/evotars.js",
   "exports": {
     ".": {
       "import": "./dist/evotars.js",

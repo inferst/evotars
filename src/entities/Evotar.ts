@@ -242,6 +242,8 @@ export class Evotar {
         return;
       }
 
+      this.state.sprite = sprite;
+
       this.spriteData = spriteData.data;
       this.animatedSprites = spriteService.getAnimatedSprites(sprite);
 

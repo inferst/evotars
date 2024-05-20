@@ -1,7 +1,9 @@
 import * as PIXI from 'pixi.js';
+import '@pixi/gif';
 import { Point } from '../helpers/types';
 import { Timer } from '../helpers/timer';
 import { FIXED_DELTA_TIME } from '../config/constants';
+import { AnimatedGIF } from '@pixi/gif';
 
 export type EvotarEmoteSpitterProps = {
   position: Point;
@@ -18,11 +20,32 @@ export class EvotarEmoteSpitter {
 
   private timer?: Timer;
 
-  public add(url: string): void {
-    const sprite = PIXI.Sprite.from(url);
-    sprite.anchor.set(0.5, 0.5);
-    sprite.scale.set(0, 0);
-    this.emotes.push(sprite);
+  public async add(url: string): Promise<void> {
+    const res = await fetch(url);
+    const contentType = res.headers.get('content-type');
+
+    let image;
+
+    switch (contentType) {
+      case 'image/gif': {
+        const buffer = await res.arrayBuffer();
+        image = AnimatedGIF.fromBuffer(buffer);
+        break;
+      }
+      case 'image/png': {
+        image = PIXI.Sprite.from(url);
+        break;
+      }
+      default: {
+        console.warn('Unsupported content type: ', url);
+        return;
+      }
+    }
+
+    image.anchor.set(0.5, 0.5);
+    image.scale.set(0, 0);
+
+    this.emotes.push(image);
   }
 
   public update(props: EvotarEmoteSpitterProps): void {

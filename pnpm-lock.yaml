@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@pixi/gif':
+    specifier: ^2
+    version: 2.1.1(@pixi/assets@7.4.2)(@pixi/core@7.4.2)(@pixi/display@7.4.2)(@pixi/sprite@7.4.2)
   '@tweenjs/tween.js':
     specifier: ^23.1.1
     version: 23.1.1
@@ -457,6 +460,20 @@ packages:
       '@pixi/core': 7.4.2
     dependencies:
       '@pixi/core': 7.4.2
+    dev: false
+
+  /@pixi/gif@2.1.1(@pixi/assets@7.4.2)(@pixi/core@7.4.2)(@pixi/display@7.4.2)(@pixi/sprite@7.4.2):
+    resolution: {integrity: sha512-SGA0HP9/9a2gy3cylBkYOWaA13ffFYj0huGfm9c0QY6AM1XQPpsonzsObIHXgwRjJP+tTjNYU66ML2fqsblM+A==}
+    peerDependencies:
+      '@pixi/assets': ^7.0.0
+      '@pixi/core': ^7.0.0
+      '@pixi/display': ^7.0.0
+      '@pixi/sprite': ^7.0.0
+    dependencies:
+      '@pixi/assets': 7.4.2(@pixi/core@7.4.2)
+      '@pixi/core': 7.4.2
+      '@pixi/display': 7.4.2(@pixi/core@7.4.2)
+      '@pixi/sprite': 7.4.2(@pixi/core@7.4.2)(@pixi/display@7.4.2)
     dev: false
 
   /@pixi/graphics@7.4.2(@pixi/core@7.4.2)(@pixi/display@7.4.2)(@pixi/sprite@7.4.2):

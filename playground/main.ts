@@ -34,7 +34,9 @@ if (root) {
     evotars.processMessage({
       message: 'Hello!',
       userId: '1',
-      emotes: [],
+      emotes: [
+        'https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_a3c4578cf38c4c668553ead85b899d70/default/dark/3.0',
+      ],
       info: {
         color: 'pink',
         displayName: 'Evotar',

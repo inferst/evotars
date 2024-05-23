@@ -1,4 +1,5 @@
-import { Point, Rect } from '../helpers/types';
+import { app } from '../app';
+import { Point } from '../helpers/types';
 import * as PIXI from 'pixi.js';
 
 export type EvotarNameProps = {
@@ -9,7 +10,7 @@ export type EvotarNameProps = {
 
 export class EvotarName {
   public text: PIXI.Text = new PIXI.Text(undefined, {
-    fontFamily: 'Rubik',
+    fontFamily: app.font,
     fontSize: 18,
     fill: 0xffffff,
     align: 'center',
@@ -29,11 +30,4 @@ export class EvotarName {
     this.text.position.x = props.position.x ?? this.text.position.x;
     this.text.position.y = props.position.y ?? this.text.position.y;
   }
-
-  rect = (): Rect => ({
-    x: this.text.x,
-    y: this.text.y,
-    w: this.text.width,
-    h: this.text.height,
-  });
 }

@@ -11,6 +11,7 @@ const root = document.body;
 
 if (root) {
   const evotars = new Evotars(root, {
+    font: 'Rubik',
     sounds,
     spriteLoaderFn: async (name: string) => {
       const path = '/evotars/' + name + '/';

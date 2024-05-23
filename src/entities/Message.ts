@@ -1,3 +1,4 @@
+import { app } from '../app';
 import { Timer } from '../helpers/timer';
 import { Point } from '../helpers/types';
 import { Tween } from '@tweenjs/tween.js';
@@ -12,7 +13,7 @@ export class EvotarMessage {
   public animated: PIXI.Container = new PIXI.Container();
 
   private text: PIXI.Text = new PIXI.Text(undefined, {
-    fontFamily: 'Rubik',
+    fontFamily: app.font,
     fontSize: 20,
     fill: 0x222222,
     align: 'left',

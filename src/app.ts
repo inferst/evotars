@@ -7,10 +7,7 @@ import { SettingsEntity } from './types';
 import { SpriteLoaderFn, spriteService } from './services/spriteService';
 
 export type AppOptions = {
-  font?: {
-    name: string;
-    src?: string;
-  };
+  font?: string;
   sounds?: SoundOptions;
   spriteLoaderFn: SpriteLoaderFn;
 };
@@ -25,10 +22,14 @@ export class App {
 
   public renderer!: PIXI.Renderer;
 
+  public font?: string;
+
   public async initialize(
     element: HTMLElement,
     options: AppOptions,
   ): Promise<void> {
+    this.font = options.font;
+
     spriteService.initialize(options.spriteLoaderFn);
     soundService.initialize(options.sounds);
 

@@ -1,10 +1,10 @@
 # Evotars
 
-Show animated chatter's evotars on your stream.
+Show animated evotars on your stream.
 
 ## Features
 
-When a chatter send a meassage, the evotar appears with the chat box.
+It's just an app for rendering any characters and processing commands like message, raid, action, etc.
 
 ## Usage
 
@@ -21,14 +21,12 @@ Put URL to the browser source.
 Frontend uses PIXI JS for rendering evotars.
 
 ```
-npm run dev
+pnpm run dev
 ```
 
 ## Creating new sprites
 
 It's really easy to create sprites with [Aseprite](https://github.com/aseprite/aseprite)
-
-Example can be found in aseprite folder.
 
 ## Contributing
 

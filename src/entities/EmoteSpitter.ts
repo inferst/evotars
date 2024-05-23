@@ -9,6 +9,8 @@ export type EvotarEmoteSpitterProps = {
   position: Point;
 };
 
+const GIFCache: Record<string, AnimatedGIF> = {};
+
 export class EvotarEmoteSpitter {
   public container: PIXI.Container = new PIXI.Container();
 
@@ -21,31 +23,44 @@ export class EvotarEmoteSpitter {
   private timer?: Timer;
 
   public async add(url: string): Promise<void> {
-    const res = await fetch(url);
-    const contentType = res.headers.get('content-type');
+    const cachedGIF = GIFCache[url];
 
     let image;
 
-    switch (contentType) {
-      case 'image/gif': {
-        const buffer = await res.arrayBuffer();
-        image = AnimatedGIF.fromBuffer(buffer);
-        break;
-      }
-      case 'image/png': {
-        image = PIXI.Sprite.from(url);
-        break;
-      }
-      default: {
-        console.warn('Unsupported content type: ', url);
-        return;
+    if (cachedGIF) {
+      image = cachedGIF.clone();
+    } else {
+      const res = await fetch(url);
+      const contentType = res.headers.get('content-type');
+
+      switch (contentType) {
+        case 'image/gif': {
+          const buffer = await res.arrayBuffer();
+          image = AnimatedGIF.fromBuffer(buffer);
+          GIFCache[url] = image;
+          break;
+        }
+        case 'image/png': {
+          image = PIXI.Sprite.from(url);
+          break;
+        }
+        default: {
+          console.warn('Unsupported content type: ', contentType);
+          return;
+        }
       }
     }
 
-    image.anchor.set(0.5, 0.5);
-    image.scale.set(0, 0);
+    if (image) {
+      image.anchor.set(0.5, 0.5);
+      image.scale.set(0, 0);
 
-    this.emotes.push(image);
+      this.emotes.push(image);
+    }
+  }
+
+  private isAnimatedGIF(sprite: any): sprite is AnimatedGIF {
+    return sprite.currentFrame;
   }
 
   public update(props: EvotarEmoteSpitterProps): void {
@@ -57,6 +72,10 @@ export class EvotarEmoteSpitter {
           const sprite = this.emotes.shift();
 
           if (sprite) {
+            if (this.isAnimatedGIF(sprite)) {
+              sprite.currentFrame = 0;
+            }
+
             this.container.addChild(sprite);
           }
         });

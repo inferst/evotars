@@ -425,9 +425,9 @@ export class Evotar {
     this.container.alpha = 1;
   }
 
-  spitEmotes(emotes: string[]): void {
+  async spitEmotes(emotes: string[]): Promise<void> {
     for (const emote of emotes) {
-      this.emoteSpitter.add(emote);
+      await this.emoteSpitter.add(emote);
     }
   }
 

@@ -1,6 +1,6 @@
 import {
   MessageEntity,
-  RaidData,
+  RaidEntity,
   TwitchChatterEntity,
   UserActionEntity,
   isColorUserActionEntity,
@@ -49,20 +49,20 @@ class EvotarsManager {
     }
   }
 
-  public processRaid(data: RaidData) {
+  public processRaid(data: RaidEntity) {
     if (!app.settings.fallingRaiders) {
       return;
     }
 
-    const time = (1 / data.viewers) * 5000;
+    const time = (1 / data.viewers.count) * 5000;
 
-    for (let i = 0; i < data.viewers; i++) {
+    for (let i = 0; i < data.viewers.count; i++) {
       const evotar = new Evotar();
 
       evotar.setProps({
         isAnonymous: true,
         zIndex: -1,
-        sprite: 'agent',
+        sprite: data.viewers.sprite,
         color: new PIXI.Color(data.broadcaster.info.color),
       });
 
@@ -71,7 +71,7 @@ class EvotarsManager {
         evotar.spawn({ isFalling: true });
       });
 
-      timers.add(i * time + 30000, () => {
+      timers.add(i * time + 60000, () => {
         evotar.despawn({
           onComplete: () => {
             this.deleteRaider(evotar);
@@ -86,8 +86,9 @@ class EvotarsManager {
       ...this.prepareEvotarProps(
         data.broadcaster.info.displayName,
         data.broadcaster.info.color,
+        data.broadcaster.info.sprite,
       ),
-      scale: 8,
+      scale: 2,
     };
 
     const spawnBroadcaster = () => {

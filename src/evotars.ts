@@ -2,7 +2,7 @@ import { AppOptions, app } from './app';
 import { evotarsManager } from './evotarsManager';
 import {
   MessageEntity,
-  RaidData,
+  RaidEntity,
   SettingsEntity,
   TwitchChatterEntity,
   UserActionEntity,
@@ -24,7 +24,7 @@ export class Evotars {
   processChatters = (data: TwitchChatterEntity[]) =>
     evotarsManager.processChatters(data);
 
-  processRaid = (data: RaidData) => evotarsManager.processRaid(data);
+  processRaid = (data: RaidEntity) => evotarsManager.processRaid(data);
 
   updateSettings(data: SettingsEntity) {
     app.updateSettings(data);

@@ -5,6 +5,7 @@ import './styles.css';
 const sounds = { jump: { src: '/sounds/jump.mp3' } };
 const settings: SettingsEntity = {
   fallingEvotars: true,
+  fallingRaiders: true,
 };
 
 const root = document.body;
@@ -35,9 +36,7 @@ if (root) {
     evotars.processMessage({
       message: 'Hello!',
       userId: '1',
-      emotes: [
-        'https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_a3c4578cf38c4c668553ead85b899d70/default/dark/3.0',
-      ],
+      emotes: [],
       info: {
         color: 'pink',
         displayName: 'Evotar',

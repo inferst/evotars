@@ -118,6 +118,11 @@ export class Evotar {
 
   scaleTween?: TWEEN.Tween<Evotar>;
 
+  private appBounds = {
+    left: 80,
+    right: app.renderer.width - 80,
+  };
+
   constructor() {
     this.container.addChild(this.name.text);
     this.container.addChild(this.emoteSpitter.container);
@@ -139,8 +144,9 @@ export class Evotar {
 
     const x =
       props.positionX != undefined
-        ? props.positionX * app.renderer.width
-        : Math.random() * (app.renderer.width - spriteWidth) + spriteWidth / 2;
+        ? props.positionX * this.appBounds.right
+        : Math.random() * (this.appBounds.right - spriteWidth) +
+          spriteWidth / 2;
     const y = spawnY * this.state.scale * this.spriteData.scale;
 
     this.container.x = x;
@@ -329,19 +335,19 @@ export class Evotar {
       const halfSpriteWidth =
         (collider.w / 2) * this.state.scale * this.spriteData.scale;
 
-      const left = this.container.x - halfSpriteWidth < 0;
-      const right = this.container.x + halfSpriteWidth > app.renderer.width;
+      const left = this.container.x - halfSpriteWidth < this.appBounds.left;
+      const right = this.container.x + halfSpriteWidth > this.appBounds.right;
 
       if (left || right) {
         this.state.direction = -this.state.direction;
         this.velocity.x = -this.velocity.x;
 
         if (left) {
-          position.x = halfSpriteWidth;
+          position.x = this.appBounds.left + halfSpriteWidth;
         }
 
         if (right) {
-          position.x = app.renderer.width - halfSpriteWidth;
+          position.x = this.appBounds.right - halfSpriteWidth;
         }
       }
     }

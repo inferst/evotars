@@ -1,5 +1,5 @@
 {
-  "version": "0.0.10",
+  "version": "0.0.11",
   "name": "evotars",
   "description": "Show animated characters on stream",
   "author": "Mikhail Morozov",
@@ -29,12 +29,18 @@
   "module": "./dist/evotars.js",
   "exports": {
     ".": {
-      "import": "./dist/evotars.js",
-      "require": "./dist/evotars.umd.cjs"
+      "types": {
+        "default": "./dist/index.d.ts"
+      },
+      "default": {
+        "import": "./dist/evotars.js",
+        "require": "./dist/evotars.umd.cjs"
+      }
     }
   },
   "type": "module",
   "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
   "devDependencies": {
     "@types/tinycolor2": "^1.4.6",
     "typescript": "^5.0.2",

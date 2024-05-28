@@ -22,16 +22,19 @@ export class App {
 
   public renderer!: PIXI.Renderer;
 
-  public font?: string;
-
   public async initialize(
     element: HTMLElement,
     options: AppOptions,
   ): Promise<void> {
-    this.font = options.font;
-
     spriteService.initialize(options.spriteLoaderFn);
     soundService.initialize(options.sounds);
+
+    if (options.font) {
+      await PIXI.Assets.load({
+        src: options.font,
+        data: { family: 'Custom Font' },
+      });
+    }
 
     this.renderer = new PIXI.Renderer({
       width: element.clientWidth,

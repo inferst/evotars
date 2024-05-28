@@ -12,7 +12,7 @@ const root = document.body;
 
 if (root) {
   const evotars = new Evotars(root, {
-    font: 'Rubik',
+    font: '/fonts/Rubik-VariableFont_wght.ttf',
     sounds,
     spriteLoaderFn: async (name: string) => {
       const path = '/evotars/' + name + '/';

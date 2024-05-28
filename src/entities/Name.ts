@@ -1,4 +1,3 @@
-import { app } from '../app';
 import { Point } from '../helpers/types';
 import * as PIXI from 'pixi.js';
 
@@ -10,7 +9,7 @@ export type EvotarNameProps = {
 
 export class EvotarName {
   public text: PIXI.Text = new PIXI.Text(undefined, {
-    fontFamily: app.font,
+    fontFamily: 'Custom Font',
     fontSize: 18,
     fill: 0xffffff,
     align: 'center',

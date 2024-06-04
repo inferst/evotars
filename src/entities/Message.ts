@@ -95,8 +95,8 @@ export class EvotarMessage {
       h: text.height + this.padding * 2,
     };
 
-    const trailWidth = 20;
-    const trailHeight = 5;
+    const tailWidth = 20;
+    const tailHeight = 5;
 
     const box = new PIXI.Graphics();
 
@@ -120,15 +120,15 @@ export class EvotarMessage {
       5,
     );
     box.lineTo(
-      roundedRect.x + roundedRect.w / 2 - trailWidth / 2,
+      roundedRect.x + roundedRect.w / 2 - tailWidth / 2,
       roundedRect.y + roundedRect.h,
     );
     box.lineTo(
       roundedRect.x + roundedRect.w / 2,
-      roundedRect.y + roundedRect.h + trailHeight,
+      roundedRect.y + roundedRect.h + tailHeight,
     );
     box.lineTo(
-      roundedRect.x + roundedRect.w / 2 + trailWidth / 2,
+      roundedRect.x + roundedRect.w / 2 + tailWidth / 2,
       roundedRect.y + roundedRect.h,
     );
     box.lineTo(

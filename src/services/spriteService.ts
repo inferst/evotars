@@ -1,9 +1,8 @@
 import {
   AnimatedSprite,
   Assets,
-  ISpritesheetData,
-  ISpritesheetFrameData,
-  SCALE_MODES,
+  SpritesheetData as ISpritesheetData,
+  SpritesheetFrameData as ISpritesheetFrameData,
   Spritesheet,
 } from 'pixi.js';
 
@@ -96,10 +95,7 @@ export class SpriteService {
 
     const texture = await Assets.load(sprite.image);
 
-    const sheet = new Spritesheet({
-      texture,
-      data: sprite.sprite,
-    });
+    const sheet = new Spritesheet(texture, sprite.sprite);
 
     await sheet.parse();
 
@@ -150,7 +146,7 @@ export class SpriteService {
 
         const sprite = new AnimatedSprite(textures);
 
-        sprite.texture.baseTexture.scaleMode = SCALE_MODES.NEAREST;
+        sprite.texture.source.scaleMode = 'nearest';
 
         layers[layer.name] = sprite;
       }

@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
-import { FIXED_DELTA_TIME } from '../config/constants';
 import { Point } from '../helpers/types';
 import { EvotarLayerSprites } from '../services/spriteService';
+import { app } from '../app';
 
 export type EvotarSpriteContainerProps = {
   color: {
@@ -39,7 +39,7 @@ export class EvotarSpriteContainer {
       const sprite = this.sprites[layer];
 
       if (props.play) {
-        sprite.update(FIXED_DELTA_TIME * 0.06);
+        sprite.update(app.ticker);
       }
 
       if (props.color) {

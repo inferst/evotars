@@ -1,5 +1,5 @@
 import { Point } from '../helpers/types';
-import * as PIXI from 'pixi.js';
+import { Text } from 'pixi.js';
 
 export type EvotarNameProps = {
   name: string;
@@ -8,14 +8,19 @@ export type EvotarNameProps = {
 };
 
 export class EvotarName {
-  public text: PIXI.Text = new PIXI.Text(undefined, {
-    fontFamily: 'Custom Font',
-    fontSize: 18,
-    fill: 0xffffff,
-    align: 'center',
-    lineJoin: 'round',
-    strokeThickness: 4,
-    stroke: 'black',
+  public text: Text = new Text({
+    text: undefined,
+    style: {
+      fontFamily: 'Custom Font',
+      fontSize: 18,
+      fill: 0xffffff,
+      align: 'center',
+      stroke: {
+        width: 4,
+        color: 'black',
+        join: 'round',
+      },
+    },
   });
 
   constructor() {

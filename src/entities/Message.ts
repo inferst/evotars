@@ -11,14 +11,17 @@ export class EvotarMessage {
   public container: PIXI.Container = new PIXI.Container();
   public animated: PIXI.Container = new PIXI.Container();
 
-  private text: PIXI.Text = new PIXI.Text(undefined, {
-    fontFamily: 'Custom Font',
-    fontSize: 20,
-    fill: 0x222222,
-    align: 'left',
-    breakWords: true,
-    wordWrap: true,
-    wordWrapWidth: 200,
+  private text: PIXI.Text = new PIXI.Text({
+    text: undefined,
+    style: {
+      fontFamily: 'Custom Font',
+      fontSize: 20,
+      fill: 0x222222,
+      align: 'left',
+      breakWords: true,
+      wordWrap: true,
+      wordWrapWidth: 200,
+    },
   });
 
   private padding = 10;
@@ -44,7 +47,7 @@ export class EvotarMessage {
   }
 
   private trim(text: PIXI.Text): string {
-    const metrics = PIXI.TextMetrics.measureText(text.text, text.style);
+    const metrics = PIXI.CanvasTextMetrics.measureText(text.text, text.style);
 
     return metrics.lines.length > 4
       ? metrics.lines.slice(0, 4).join(' ').slice(0, -3) + '...'
@@ -92,9 +95,9 @@ export class EvotarMessage {
     };
 
     const box = new PIXI.Graphics();
-    box.beginFill(this.boxColor);
+    box.fill(this.boxColor);
 
-    box.drawRoundedRect(
+    box.roundRect(
       roundedRect.x,
       roundedRect.y,
       roundedRect.w,
@@ -102,7 +105,7 @@ export class EvotarMessage {
       this.borderRadius,
     );
 
-    box.drawPolygon(
+    box.poly([
       {
         x: roundedRect.x + roundedRect.w / 2 - 10,
         y: roundedRect.y + roundedRect.h,
@@ -115,9 +118,9 @@ export class EvotarMessage {
         x: roundedRect.x + roundedRect.w / 2,
         y: roundedRect.y + roundedRect.h + 10 - 4,
       },
-    );
+    ]);
 
-    box.endFill();
+    box.fill();
 
     return box;
   }

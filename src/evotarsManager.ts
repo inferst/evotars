@@ -222,6 +222,8 @@ class EvotarsManager {
 
     if (!evotar) {
       const evotar = new Evotar();
+
+      this.addViewer(action.userId, evotar);
       await evotar.setProps(props);
 
       evotar.spawn({
@@ -232,8 +234,6 @@ class EvotarsManager {
           }
         },
       });
-
-      this.addViewer(action.userId, evotar);
     } else {
       await evotar.setProps(props);
       this.doAction(action, evotar);
@@ -255,10 +255,10 @@ class EvotarsManager {
         : false;
 
       evotar = new Evotar();
+      this.addViewer(data.userId, evotar);
+
       await evotar.setProps(props);
       evotar.spawn({ isFalling });
-
-      this.addViewer(data.userId, evotar);
     } else {
       evotar.setProps(props);
     }

@@ -20,6 +20,7 @@ export class EvotarTrailEffect {
 
   constructor() {
     app.stage.addChild(this.container);
+    this.container.zIndex = -100;
   }
 
   public setSprite(sprite: EvotarSpriteContainer) {

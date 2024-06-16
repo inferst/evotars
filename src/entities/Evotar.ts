@@ -16,6 +16,7 @@ import { EvotarMessage } from './Message';
 import { EvotarName } from './Name';
 import { EvotarSpriteContainer } from './SpriteContainer';
 import { EvotarTrailEffect } from './TrailEffect';
+import { delay } from '../helpers/delay';
 
 export type EvotarProps = {
   name?: string;
@@ -89,7 +90,7 @@ export class Evotar {
 
   private emoteSpitter: EvotarEmoteSpitter = new EvotarEmoteSpitter();
 
-  private velocity: PIXI.IPointData = {
+  private velocity: PIXI.PointData = {
     x: 0,
     y: 0,
   };
@@ -208,11 +209,11 @@ export class Evotar {
       .start();
   }
 
-  jump(options: {
+  async jump(options: {
     velocityX: number;
     velocityY: number;
     cooldown: number;
-  }): void {
+  }): Promise<void> {
     if (this.isDespawned) {
       return;
     }
@@ -220,12 +221,14 @@ export class Evotar {
     if (!this.isJumping) {
       this.isJumping = true;
 
+      soundService.play('jump');
+
+      await delay(300);
+
       this.velocity.x = this.state.direction * (options.velocityX ?? 3.5);
       this.velocity.y = options.velocityY ?? -8;
 
       this.setAnimationState(EvotarSpriteTags.Jump);
-
-      soundService.play('jump');
     }
   }
 

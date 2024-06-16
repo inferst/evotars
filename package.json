@@ -1,5 +1,5 @@
 {
-  "version": "0.0.11",
+  "version": "0.0.12",
   "name": "evotars",
   "description": "Show animated characters on stream",
   "author": "Mikhail Morozov",
@@ -48,9 +48,9 @@
     "vite-plugin-dts": "^3.8.3"
   },
   "dependencies": {
-    "@pixi/gif": "^2",
+    "@pixi/gif": "^3.0.1",
     "@tweenjs/tween.js": "^23.1.1",
-    "pixi.js": "^7.4.2",
+    "pixi.js": "^8.1.5",
     "tinycolor2": "^1.6.0"
   }
 }

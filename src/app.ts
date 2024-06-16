@@ -5,6 +5,7 @@ import { evotarsManager } from './evotarsManager';
 import { SoundOptions, soundService } from './services/soundService';
 import { SettingsEntity } from './types';
 import { SpriteLoaderFn, spriteService } from './services/spriteService';
+import { FIXED_DELTA_TIME } from './config/constants';
 
 export type AppOptions = {
   font?: string;
@@ -22,6 +23,8 @@ export class App {
 
   public renderer!: PIXI.Renderer;
 
+  public ticker!: PIXI.Ticker;
+
   public async initialize(
     element: HTMLElement,
     options: AppOptions,
@@ -36,13 +39,20 @@ export class App {
       });
     }
 
-    this.renderer = new PIXI.Renderer({
+    this.ticker = new PIXI.Ticker();
+    this.ticker.deltaTime = FIXED_DELTA_TIME * 0.06;
+
+    this.renderer = await PIXI.autoDetectRenderer({
+      preference: 'webgl',
+    });
+
+    await this.renderer.init({
       width: element.clientWidth,
       height: element.clientHeight,
       backgroundAlpha: 0,
     });
 
-    element.appendChild(this.renderer.view as HTMLCanvasElement);
+    element.appendChild(this.renderer.canvas);
 
     window.onresize = (): void => {
       this.renderer.resize(element.clientWidth, element.clientHeight);

@@ -11,19 +11,23 @@ export class EvotarMessage {
   public container: PIXI.Container = new PIXI.Container();
   public animated: PIXI.Container = new PIXI.Container();
 
-  private text: PIXI.Text = new PIXI.Text(undefined, {
-    fontFamily: 'Custom Font',
-    fontSize: 20,
-    fill: 0x222222,
-    align: 'left',
-    breakWords: true,
-    wordWrap: true,
-    wordWrapWidth: 200,
+  private text: PIXI.Text = new PIXI.Text({
+    text: undefined,
+    style: {
+      fontFamily: 'Custom Font',
+      fontSize: 20,
+      fill: 0x222222,
+      align: 'left',
+      breakWords: true,
+      wordWrap: true,
+      wordWrapWidth: 200,
+    },
   });
 
   private padding = 10;
   private borderRadius = 10;
   private boxColor = 0xeeeeee;
+  private boxBorderColor = 0x222222;
 
   private fadeShift = 10;
 
@@ -44,7 +48,7 @@ export class EvotarMessage {
   }
 
   private trim(text: PIXI.Text): string {
-    const metrics = PIXI.TextMetrics.measureText(text.text, text.style);
+    const metrics = PIXI.CanvasTextMetrics.measureText(text.text, text.style);
 
     return metrics.lines.length > 4
       ? metrics.lines.slice(0, 4).join(' ').slice(0, -3) + '...'
@@ -91,33 +95,74 @@ export class EvotarMessage {
       h: text.height + this.padding * 2,
     };
 
-    const box = new PIXI.Graphics();
-    box.beginFill(this.boxColor);
+    const tailWidth = 20;
+    const tailHeight = 5;
 
-    box.drawRoundedRect(
+    const box = new PIXI.Graphics();
+
+    box.moveTo(roundedRect.x + this.borderRadius, roundedRect.y);
+    box.quadraticCurveTo(
       roundedRect.x,
       roundedRect.y,
-      roundedRect.w,
-      roundedRect.h,
-      this.borderRadius,
+      roundedRect.x,
+      roundedRect.y + this.borderRadius,
+      5,
     );
-
-    box.drawPolygon(
-      {
-        x: roundedRect.x + roundedRect.w / 2 - 10,
-        y: roundedRect.y + roundedRect.h,
-      },
-      {
-        x: roundedRect.x + roundedRect.w / 2 + 10,
-        y: roundedRect.y + roundedRect.h,
-      },
-      {
-        x: roundedRect.x + roundedRect.w / 2,
-        y: roundedRect.y + roundedRect.h + 10 - 4,
-      },
+    box.lineTo(
+      roundedRect.x,
+      roundedRect.y + roundedRect.h - this.borderRadius,
     );
+    box.quadraticCurveTo(
+      roundedRect.x,
+      roundedRect.y + roundedRect.h,
+      roundedRect.x + this.borderRadius,
+      roundedRect.y + roundedRect.h,
+      5,
+    );
+    box.lineTo(
+      roundedRect.x + roundedRect.w / 2 - tailWidth / 2,
+      roundedRect.y + roundedRect.h,
+    );
+    box.lineTo(
+      roundedRect.x + roundedRect.w / 2,
+      roundedRect.y + roundedRect.h + tailHeight,
+    );
+    box.lineTo(
+      roundedRect.x + roundedRect.w / 2 + tailWidth / 2,
+      roundedRect.y + roundedRect.h,
+    );
+    box.lineTo(
+      roundedRect.x + roundedRect.w - this.borderRadius,
+      roundedRect.y + roundedRect.h,
+    );
+    box.quadraticCurveTo(
+      roundedRect.x + roundedRect.w,
+      roundedRect.y + roundedRect.h,
+      roundedRect.x + roundedRect.w,
+      roundedRect.y + roundedRect.h - this.borderRadius,
+      5,
+    );
+    box.lineTo(
+      roundedRect.x + roundedRect.w,
+      roundedRect.y + this.borderRadius,
+    );
+    box.quadraticCurveTo(
+      roundedRect.x + roundedRect.w,
+      roundedRect.y,
+      roundedRect.x + roundedRect.w - this.borderRadius,
+      roundedRect.y,
+      5,
+    );
+    box.lineTo(roundedRect.x + this.borderRadius, roundedRect.y);
 
-    box.endFill();
+    box.fill({
+      color: this.boxColor,
+    });
+
+    box.stroke({
+      color: this.boxBorderColor,
+      width: 2,
+    });
 
     return box;
   }

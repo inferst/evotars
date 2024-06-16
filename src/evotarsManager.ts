@@ -3,11 +3,10 @@ import {
   RaidEntity,
   TwitchChatterEntity,
   UserActionEntity,
-  isColorUserActionEntity,
   isDashUserActionEntity,
   isGrowUserActionEntity,
+  isInfoUserActionEntity,
   isJumpUserActionEntity,
-  isSpriteUserActionEntity,
 } from './types';
 import * as PIXI from 'pixi.js';
 import tinycolor from 'tinycolor2';
@@ -167,12 +166,14 @@ class EvotarsManager {
       evotar.dash({ force: action.data.force, cooldown: action.cooldown });
     }
 
-    if (isColorUserActionEntity(action)) {
-      const color = tinycolor(action.data.color);
+    if (isInfoUserActionEntity(action)) {
+      const color = tinycolor(action.info.color);
 
       if (color && color.isValid()) {
-        evotar.setUserProps({ color: new PIXI.Color(action.data.color) });
+        evotar.setUserProps({ color: new PIXI.Color(action.info.color) });
       }
+
+      evotar.setSprite(action.info.sprite);
     }
 
     if (isGrowUserActionEntity(action)) {
@@ -181,10 +182,6 @@ class EvotarsManager {
         duration: action.data.duration,
         cooldown: action.cooldown,
       });
-    }
-
-    if (isSpriteUserActionEntity(action)) {
-      evotar.setSprite(action.data.sprite);
     }
   }
 
@@ -222,6 +219,8 @@ class EvotarsManager {
 
     if (!evotar) {
       const evotar = new Evotar();
+
+      this.addViewer(action.userId, evotar);
       await evotar.setProps(props);
 
       evotar.spawn({
@@ -232,8 +231,6 @@ class EvotarsManager {
           }
         },
       });
-
-      this.addViewer(action.userId, evotar);
     } else {
       await evotar.setProps(props);
       this.doAction(action, evotar);
@@ -255,10 +252,10 @@ class EvotarsManager {
         : false;
 
       evotar = new Evotar();
+      this.addViewer(data.userId, evotar);
+
       await evotar.setProps(props);
       evotar.spawn({ isFalling });
-
-      this.addViewer(data.userId, evotar);
     } else {
       evotar.setProps(props);
     }

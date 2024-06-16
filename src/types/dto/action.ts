@@ -29,11 +29,8 @@ export type JumpUserActionEntity = {
   };
 } & UserActionEntity;
 
-export type ColorUserActionEntity = {
-  name: 'color';
-  data: {
-    color: string;
-  };
+export type InfoUserActionEntity = {
+  name: 'info';
 } & UserActionEntity;
 
 export type GrowUserActionEntity = {
@@ -51,20 +48,13 @@ export type DashUserActionEntity = {
   };
 } & UserActionEntity;
 
-export type SpriteUserActionEntity = {
-  name: 'sprite';
-  data: {
-    sprite: string;
-  };
-} & UserActionEntity;
-
 export const isJumpUserActionEntity = (
   entity: ActionEntity,
 ): entity is JumpUserActionEntity => entity.name == 'jump';
 
-export const isColorUserActionEntity = (
+export const isInfoUserActionEntity = (
   entity: ActionEntity,
-): entity is ColorUserActionEntity => entity.name == 'color';
+): entity is InfoUserActionEntity => entity.name == 'info';
 
 export const isGrowUserActionEntity = (
   entity: ActionEntity,
@@ -73,7 +63,3 @@ export const isGrowUserActionEntity = (
 export const isDashUserActionEntity = (
   entity: ActionEntity,
 ): entity is DashUserActionEntity => entity.name == 'dash';
-
-export const isSpriteUserActionEntity = (
-  entity: ActionEntity,
-): entity is SpriteUserActionEntity => entity.name == 'sprite';

@@ -19,7 +19,7 @@ class SoundService {
     const audio = this.assets[name];
 
     if (audio) {
-      audio.volume = 0.2;
+      audio.volume = 0.3;
       audio.pause();
       audio.currentTime = 0;
       audio.play();

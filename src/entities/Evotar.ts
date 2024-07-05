@@ -8,7 +8,6 @@ import { soundService } from '../services/soundService';
 import {
   EvotarSpriteData,
   EvotarSpriteTags,
-  EvotarAnimatedSprites,
   spriteService,
 } from '../services/spriteService';
 import { EvotarEmoteSpitter } from './EmoteSpitter';
@@ -17,6 +16,9 @@ import { EvotarName } from './Name';
 import { EvotarSpriteContainer } from './SpriteContainer';
 import { EvotarTrailEffect } from './TrailEffect';
 import { delay } from '../helpers/delay';
+import { EvotarInfo } from './Info';
+import { checkCollisionDownUp } from '../collisionChecker';
+import { stageSpriteContainer } from '../StageSpriteContainer';
 
 export type EvotarProps = {
   name?: string;
@@ -25,6 +27,7 @@ export type EvotarProps = {
   direction?: number;
   scale?: number;
   isAnonymous?: boolean;
+  isImmortal?: boolean;
   zIndex?: number;
 };
 
@@ -33,6 +36,8 @@ export type EvotarSpawnProps = {
   positionX?: number;
   onComplete?: () => void;
 };
+
+export type EvotarJumpProps = { velocityX?: number; velocityY?: number };
 
 export type EvotarDepawnProps = {
   onComplete?: () => void;
@@ -56,12 +61,12 @@ export class Evotar {
     direction: 1,
     scale: 1,
     isAnonymous: false,
+    isImmortal: false,
     zIndex: 0,
   };
 
   private animationState: EvotarSpriteTags = EvotarSpriteTags.Idle;
 
-  // TODO: Refactor sprite initializing, move logic to separate file
   private sprite?: EvotarSpriteContainer;
 
   private spriteData: EvotarSpriteData = {
@@ -78,11 +83,62 @@ export class Evotar {
     colored: [],
   };
 
-  private animatedSprites?: EvotarAnimatedSprites;
+  get collider() {
+    return {
+      x:
+        this.container.position.x -
+        this.spriteData.collider.x * this.state.scale * this.spriteData.scale,
+      y:
+        this.container.position.y -
+        this.spriteData.collider.h * this.state.scale * this.spriteData.scale,
+      w: this.spriteData.collider.w * this.state.scale * this.spriteData.scale,
+      h: this.spriteData.collider.h * this.state.scale * this.spriteData.scale,
+    };
+  }
+
+  public async resurrect() {
+    if (this.deathTimer) {
+      this.deathTimer.complete();
+    }
+  }
+
+  public async die(): Promise<void> {
+    if (this.state.isImmortal) {
+      return;
+    }
+
+    this.isDead = true;
+
+    stageSpriteContainer.play(
+      'poof',
+      {
+        x: this.container.position.x,
+        y: this.container.position.y - this.collider.h / 2,
+      },
+      this.state.scale * this.spriteData.scale,
+    );
+
+    this.container.visible = false;
+
+    this.deathTimer = new Timer(1000 * 60 * 3, () => {
+      if (!this.isDespawned && this.isDead) {
+        this.container.alpha = 0;
+
+        this.spawnTween = new TWEEN.Tween(this.container)
+          .to({ alpha: 1 }, 500)
+          .start();
+
+        this.isDead = false;
+        this.container.visible = true;
+      }
+    });
+  }
 
   public trail: EvotarTrailEffect = new EvotarTrailEffect();
 
   private name: EvotarName = new EvotarName();
+
+  private info: EvotarInfo = new EvotarInfo();
 
   private message: EvotarMessage = new EvotarMessage(() => {
     this.state.zIndex = evotarsManager.zIndexEvotarMax(this.container.zIndex);
@@ -95,6 +151,10 @@ export class Evotar {
     y: 0,
   };
 
+  private jumpHits = 20;
+
+  private kills = 0;
+
   private runSpeed = 0.05;
 
   private gravity = 0.2;
@@ -103,9 +163,15 @@ export class Evotar {
 
   private isJumping = false;
 
+  private isKillJumping = false;
+
   private isDashing = false;
 
   private isDespawned = false;
+
+  public isDead = false;
+
+  deathTimer?: Timer;
 
   landTimer?: Timer;
 
@@ -124,12 +190,18 @@ export class Evotar {
     right: app.renderer.width - 80,
   };
 
+  public debugRect = new PIXI.Graphics();
+
   constructor() {
     this.container.addChild(this.name.text);
+    this.container.addChild(this.info.containter);
     this.container.addChild(this.emoteSpitter.container);
     this.container.addChild(this.message.container);
+    app.stage.addChild(this.debugRect);
 
     this.container.sortableChildren = true;
+
+    this.setInfoProps();
   }
 
   spawn(props: EvotarSpawnProps = { isFalling: false }): void {
@@ -188,7 +260,7 @@ export class Evotar {
       .start();
   }
 
-  scale(options: { value: number; duration: number; cooldown: number }): void {
+  scale(options: { value: number; duration: number }): void {
     if (this.scaleTween && this.scaleTween.isPlaying()) {
       return;
     }
@@ -209,11 +281,19 @@ export class Evotar {
       .start();
   }
 
-  async jump(options: {
-    velocityX: number;
-    velocityY: number;
-    cooldown: number;
-  }): Promise<void> {
+  setInfoProps() {
+    this.info.setProps({
+      kills: this.kills,
+      jumps: this.jumpHits,
+    });
+  }
+
+  addJumpHit(count: number) {
+    this.jumpHits += count;
+    this.setInfoProps();
+  }
+
+  async jump(options?: EvotarJumpProps): Promise<void> {
     if (this.isDespawned) {
       return;
     }
@@ -225,14 +305,20 @@ export class Evotar {
 
       await delay(300);
 
-      this.velocity.x = this.state.direction * (options.velocityX ?? 3.5);
-      this.velocity.y = options.velocityY ?? -8;
+      this.velocity.x = this.state.direction * (options?.velocityX ?? 3.5);
+      this.velocity.y = options?.velocityY ?? -8;
 
       this.setAnimationState(EvotarSpriteTags.Jump);
+
+      if (this.jumpHits > 0) {
+        --this.jumpHits;
+        this.isKillJumping = true;
+        this.setInfoProps();
+      }
     }
   }
 
-  dash(options: { force: number; cooldown: number }): void {
+  dash(options: { force: number }): void {
     if (this.isDespawned) {
       return;
     }
@@ -254,7 +340,10 @@ export class Evotar {
       this.state.sprite = sprite;
 
       this.spriteData = spriteData.data;
-      this.animatedSprites = spriteService.getAnimatedSprites(sprite);
+      const animatedSprites = spriteService.getAnimatedSprites(sprite);
+      this.sprite = new EvotarSpriteContainer(animatedSprites, this.spriteData);
+      this.container.addChild(this.sprite.container);
+      this.trail.setSprite(this.sprite);
 
       this.setAnimationState(this.animationState, true);
     }
@@ -325,6 +414,7 @@ export class Evotar {
           this.landTimer = new Timer(200, () => {
             this.setAnimationState(EvotarSpriteTags.Idle);
             this.isJumping = false;
+            this.isKillJumping = false;
           });
         }
       }
@@ -356,11 +446,46 @@ export class Evotar {
     }
 
     this.container.position.set(position.x, position.y);
+
+    if (this.isKillJumping) {
+      this.jumpKill();
+    }
+  }
+
+  jumpKill() {
+    const otherViewers = evotarsManager.getViewerEvotars();
+
+    for (const id in otherViewers) {
+      const other = otherViewers[id];
+
+      if (other) {
+        const collider1 = this.collider;
+        const collider2 = other.collider;
+
+        if (
+          other != this &&
+          checkCollisionDownUp(collider1, collider2, {
+            x: this.velocity.x,
+            y: this.velocity.y,
+          })
+        ) {
+          if (!other.isDead && !other.state.isImmortal) {
+            other.die();
+            this.kills++;
+            this.setInfoProps();
+          }
+        }
+      }
+    }
   }
 
   update(): void {
     if (this.isDespawned) {
       return;
+    }
+
+    if (this.isDead) {
+      this.deathTimer?.tick();
     }
 
     this.landTimer?.tick();
@@ -383,9 +508,15 @@ export class Evotar {
       },
     });
 
-    this.message.update({
+    this.info.update({
       position: {
         y: this.name.text.position.y - this.name.text.height - 6,
+      },
+    });
+
+    this.message.update({
+      position: {
+        y: this.info.containter.position.y - this.info.containter.height - 6,
       },
     });
 
@@ -448,30 +579,10 @@ export class Evotar {
       return;
     }
 
-    // TODO: Refactor sprite initializing, move logic to separate file
-    if (!this.animatedSprites) {
-      return;
-    }
-
     this.animationState = state;
 
     if (this.sprite) {
-      this.container.removeChild(this.sprite.container);
+      this.sprite.setTag(state);
     }
-
-    const animatedSprites =
-      this.animatedSprites![this.animationState] ??
-      this.animatedSprites[EvotarSpriteTags.Idle];
-
-    this.sprite = new EvotarSpriteContainer(animatedSprites);
-
-    this.trail.setSprite(this.sprite);
-
-    this.sprite.container.pivot.set(
-      0,
-      this.spriteData.collider.y + this.spriteData.collider.h,
-    );
-
-    this.container.addChild(this.sprite.container);
   }
 }

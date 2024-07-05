@@ -3,15 +3,18 @@ import {
   RaidEntity,
   TwitchChatterEntity,
   UserActionEntity,
+  isAddJumpHitUserActionEntity,
+  isColorUserActionEntity,
   isDashUserActionEntity,
   isGrowUserActionEntity,
-  isInfoUserActionEntity,
   isJumpUserActionEntity,
+  isResurrectHitUserActionEntity,
+  isSpriteUserActionEntity,
 } from './types';
 import * as PIXI from 'pixi.js';
 import tinycolor from 'tinycolor2';
 import { app } from './app';
-import { Evotar, EvotarProps } from './entities/Evotar';
+import { Evotar, EvotarProps, EvotarSpawnProps } from './entities/Evotar';
 import { timers } from './helpers/timer';
 
 type EvotarsManagerSubscription = {
@@ -46,6 +49,30 @@ class EvotarsManager {
     for (const evotar of this.raiders) {
       evotar.update();
     }
+  }
+
+  public getViewerEvotars() {
+    return this.viewers;
+  }
+
+  public getViewerEvotar(id: number) {
+    return this.viewers[id];
+  }
+
+  public async spawnViewerEvotar(
+    userId: string,
+    props: EvotarProps,
+    spawnProps: EvotarSpawnProps,
+  ): Promise<Evotar> {
+    const evotar = new Evotar();
+    this.addViewer(userId, evotar);
+
+    await evotar.setProps(props);
+    evotar.spawn(spawnProps);
+
+    this.lastEvotarActivity[userId] = performance.now();
+
+    return evotar;
   }
 
   public processRaid(data: RaidEntity) {
@@ -158,30 +185,38 @@ class EvotarsManager {
       evotar.jump({
         velocityX: action.data.velocityX,
         velocityY: action.data.velocityY,
-        cooldown: action.cooldown,
       });
     }
 
     if (isDashUserActionEntity(action)) {
-      evotar.dash({ force: action.data.force, cooldown: action.cooldown });
+      evotar.dash({ force: action.data.force });
     }
 
-    if (isInfoUserActionEntity(action)) {
-      const color = tinycolor(action.info.color);
+    if (isColorUserActionEntity(action)) {
+      const color = tinycolor(action.data.color);
 
       if (color && color.isValid()) {
-        evotar.setUserProps({ color: new PIXI.Color(action.info.color) });
+        evotar.setUserProps({ color: new PIXI.Color(action.data.color) });
       }
-
-      evotar.setSprite(action.info.sprite);
     }
 
     if (isGrowUserActionEntity(action)) {
       evotar.scale({
         value: action.data.scale,
         duration: action.data.duration,
-        cooldown: action.cooldown,
       });
+    }
+
+    if (isSpriteUserActionEntity(action)) {
+      evotar.setSprite(action.data.sprite);
+    }
+
+    if (isAddJumpHitUserActionEntity(action)) {
+      evotar.addJumpHit(action.data.jump_hits);
+    }
+
+    if (isResurrectHitUserActionEntity(action)) {
+      evotar.resurrect();
     }
   }
 

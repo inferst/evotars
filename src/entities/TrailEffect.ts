@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import { app } from '../app';
 import { Timer } from '../helpers/timer';
 import { EvotarSpriteContainer } from './SpriteContainer';
+import { EvotarSpriteTags } from '../services/spriteService';
 
 export type EvotarTrailEffectProps = {
   play: boolean;
@@ -42,8 +43,10 @@ export class EvotarTrailEffect {
       const container = new PIXI.Container();
 
       if (this.sprite) {
-        for (const layer in this.sprite.sprites) {
-          const sprite = this.sprite.sprites[layer];
+        const layers = this.sprite.getLayersByTag(EvotarSpriteTags.Idle);
+
+        for (const layer in layers) {
+          const sprite = layers[layer];
           const texture = sprite.texture;
           const trailSprite = new PIXI.Sprite(texture);
 

@@ -39,6 +39,12 @@ export class App {
       });
     }
 
+    PIXI.Assets.add({ alias: 'poof', src: '/poof.json' });
+    PIXI.Assets.add({ alias: 'skull', src: '/skull.png' });
+    PIXI.Assets.add({ alias: 'weight', src: '/weight.png' });
+
+    await PIXI.Assets.load(['death', 'skull', 'weight', 'poof']);
+
     this.ticker = new PIXI.Ticker();
     this.ticker.deltaTime = FIXED_DELTA_TIME * 0.06;
 

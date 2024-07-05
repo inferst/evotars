@@ -26,6 +26,10 @@ export class Evotars {
 
   processRaid = (data: RaidEntity) => evotarsManager.processRaid(data);
 
+  get manager() {
+    return evotarsManager;
+  }
+
   updateSettings(data: SettingsEntity) {
     app.updateSettings(data);
   }

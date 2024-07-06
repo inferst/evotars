@@ -57,10 +57,10 @@ export type SpriteUserActionEntity = {
   };
 } & UserActionEntity;
 
-export type AddJumpHitUserActionEntity = {
-  name: 'add_jump_hit';
+export type AddJumpHitsUserActionEntity = {
+  name: 'add_jump_hits';
   data: {
-    jump_hits: number;
+    count: number;
   };
 } & UserActionEntity;
 
@@ -91,8 +91,8 @@ export const isSpriteUserActionEntity = (
 
 export const isAddJumpHitUserActionEntity = (
   entity: ActionEntity,
-): entity is AddJumpHitUserActionEntity => entity.name == 'add_jump_hit';
+): entity is AddJumpHitsUserActionEntity => entity.name == 'add_jump_hits';
 
 export const isResurrectHitUserActionEntity = (
   entity: ActionEntity,
-): entity is AddJumpHitUserActionEntity => entity.name == 'resurrect';
+): entity is ResurrectUserActionEntity => entity.name == 'resurrect';

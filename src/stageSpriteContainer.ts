@@ -12,12 +12,13 @@ export class StageSpriteContainer {
 
     if (animatedSprite) {
       app.stage.addChild(animatedSprite);
-      app.stage.zIndex = 1000;
 
+      animatedSprite.zIndex = 1000;
       animatedSprite.scale.set(scale, scale);
       animatedSprite.position.set(position.x, position.y);
       animatedSprite.anchor.set(0.5, 0.5);
       animatedSprite.loop = false;
+      animatedSprite.texture.source.scaleMode = 'nearest';
 
       animatedSprite.play();
       animatedSprite.onComplete = () => {

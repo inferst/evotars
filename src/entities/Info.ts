@@ -39,6 +39,9 @@ export class EvotarInfo {
 
   private jumpSprite: Sprite;
 
+  public kills = 0;
+  public jumps = 0;
+
   constructor() {
     this.containter.zIndex = 100;
 
@@ -49,9 +52,25 @@ export class EvotarInfo {
     this.jumpText.anchor.set(0, 0.5);
   }
 
+  addJumps(count: number) {
+    this.jumps += count;
+    this.draw();
+  }
+
+  addKill() {
+    this.kills += 1;
+    this.draw();
+  }
+
+  useJump() {
+    this.jumps -= 1;
+    this.draw();
+  }
+
   createSprite(name: string): Sprite {
     const asset = Assets.get(name);
     const sprite = Sprite.from(asset);
+
     sprite.anchor.set(0, 0.5);
     sprite.scale.set(2, 2);
     sprite.texture.source.scaleMode = 'nearest';
@@ -59,21 +78,21 @@ export class EvotarInfo {
     return sprite;
   }
 
-  setProps(props: EvotarInfoProps) {
+  draw() {
     const items = [];
 
-    if (props.kills > 0) {
+    if (this.kills > 0) {
       items.push(this.killSprite);
       items.push(this.killText);
 
-      this.killText.text = props.kills;
+      this.killText.text = this.kills;
     }
 
-    if (props.jumps > 0) {
+    if (this.jumps > 0) {
       items.push(this.jumpSprite);
       items.push(this.jumpText);
 
-      this.jumpText.text = props.jumps;
+      this.jumpText.text = this.jumps;
     }
 
     const padding = 4;
@@ -96,13 +115,5 @@ export class EvotarInfo {
   update(props: EvotarInfoUpdateProps) {
     this.containter.position.x = props.position.x ?? this.containter.position.x;
     this.containter.position.y = props.position.y ?? this.containter.position.y;
-  }
-
-  hide() {
-    this.containter.visible = false;
-  }
-
-  show() {
-    this.containter.visible = true;
   }
 }

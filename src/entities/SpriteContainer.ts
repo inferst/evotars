@@ -19,13 +19,12 @@ export type EvotarSpriteContainerProps = {
 export class EvotarSpriteContainer {
   public container: PIXI.Container = new PIXI.Container();
 
-  public sprites: EvotarAnimatedSprites;
-
   private currentTag: string = EvotarSpriteTags.Idle;
 
-  constructor(sprites: EvotarAnimatedSprites, data: EvotarSpriteData) {
-    this.sprites = sprites;
-
+  constructor(
+    private sprites: EvotarAnimatedSprites,
+    public data: EvotarSpriteData,
+  ) {
     this.container.pivot.set(0, data.collider.y + data.collider.h);
     this.container.sortableChildren = true;
 

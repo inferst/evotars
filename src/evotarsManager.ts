@@ -16,6 +16,7 @@ import tinycolor from 'tinycolor2';
 import { app } from './app';
 import { Evotar, EvotarProps, EvotarSpawnProps } from './entities/Evotar';
 import { timers } from './helpers/timer';
+import { TombStone } from './entities/TombStone';
 
 type EvotarsManagerSubscription = {
   onAdd: (evotar: Evotar) => void;
@@ -25,13 +26,14 @@ type EvotarsManagerSubscription = {
 const EVOTAR_DESPAWN_TIMER = 1000 * 60 * 5;
 
 class EvotarsManager {
-  private viewers: Record<string, Evotar | undefined> = {};
+  public viewers: Record<string, Evotar | undefined> = {};
+  public tombstones: TombStone[] = [];
 
-  private raiders: Evotar[] = [];
+  public raiders: Evotar[] = [];
 
-  private lastEvotarActivity: Record<string, number | undefined> = {};
+  public recentEvotarActivity: Record<string, number | undefined> = {};
 
-  private subscriptions: EvotarsManagerSubscription[] = [];
+  public subscriptions: EvotarsManagerSubscription[] = [];
 
   public subscribe(subscription: EvotarsManagerSubscription) {
     this.subscriptions.push(subscription);
@@ -46,8 +48,12 @@ class EvotarsManager {
       }
     }
 
-    for (const evotar of this.raiders) {
-      evotar.update();
+    for (const raider of this.raiders) {
+      raider.update();
+    }
+
+    for (const object of this.tombstones) {
+      object.update();
     }
   }
 
@@ -70,7 +76,7 @@ class EvotarsManager {
     await evotar.setProps(props);
     evotar.spawn(spawnProps);
 
-    this.lastEvotarActivity[userId] = performance.now();
+    this.recentEvotarActivity[userId] = performance.now();
 
     return evotar;
   }
@@ -115,6 +121,7 @@ class EvotarsManager {
         data.broadcaster.info.sprite,
       ),
       scale: 2,
+      isImmortal: true,
     };
 
     const spawnBroadcaster = () => {
@@ -124,7 +131,7 @@ class EvotarsManager {
       evotar.spawn({ isFalling: true, positionX: 0.5 });
     };
 
-    this.lastEvotarActivity[data.broadcaster.id] = performance.now();
+    this.recentEvotarActivity[data.broadcaster.id] = performance.now();
 
     if (!evotar) {
       spawnBroadcaster();
@@ -137,9 +144,25 @@ class EvotarsManager {
     }
   }
 
+  private despawnEvotar(id: string, evotar: Evotar) {
+    evotar.despawn({
+      onComplete: () => {
+        this.deleteViewer(id, evotar);
+      },
+    });
+
+    const tombStone = this.tombstones.find((stone) => stone.id == id);
+
+    if (tombStone) {
+      tombStone.despawn(true, () => {
+        this.deleteTombStone(tombStone);
+      });
+    }
+  }
+
   public async processChatters(data: TwitchChatterEntity[]) {
     for (const id in this.viewers) {
-      const lastMessageTime = this.lastEvotarActivity[id];
+      const lastMessageTime = this.recentEvotarActivity[id];
       const spawnedRecently =
         !!lastMessageTime &&
         performance.now() - lastMessageTime < EVOTAR_DESPAWN_TIMER;
@@ -148,11 +171,7 @@ class EvotarsManager {
         const evotar = this.viewers[id];
 
         if (evotar) {
-          evotar.despawn({
-            onComplete: () => {
-              this.deleteViewer(id, evotar);
-            },
-          });
+          this.despawnEvotar(id, evotar);
         }
       }
     }
@@ -177,8 +196,8 @@ class EvotarsManager {
     }
   }
 
-  private hasActivity = (userId: string): boolean =>
-    !!this.lastEvotarActivity[userId];
+  public hasActivity = (userId: string): boolean =>
+    !!this.recentEvotarActivity[userId];
 
   public doAction(action: UserActionEntity, evotar: Evotar) {
     if (isJumpUserActionEntity(action)) {
@@ -212,7 +231,7 @@ class EvotarsManager {
     }
 
     if (isAddJumpHitUserActionEntity(action)) {
-      evotar.addJumpHit(action.data.jump_hits);
+      evotar.addJumpHit(action.data.count);
     }
 
     if (isResurrectHitUserActionEntity(action)) {
@@ -220,7 +239,7 @@ class EvotarsManager {
     }
   }
 
-  private prepareEvotarProps(
+  public prepareEvotarProps(
     name: string,
     color?: string,
     sprite?: string,
@@ -295,7 +314,7 @@ class EvotarsManager {
       evotar.setProps(props);
     }
 
-    this.lastEvotarActivity[data.userId] = performance.now();
+    this.recentEvotarActivity[data.userId] = performance.now();
 
     if (data.message) {
       evotar.addMessage(data.message);
@@ -304,6 +323,54 @@ class EvotarsManager {
     if (data.emotes.length > 0) {
       evotar.spitEmotes(data.emotes);
     }
+  }
+
+  public getViewerId(evotar: Evotar): string | undefined {
+    for (const id in this.viewers) {
+      if (this.viewers[id] == evotar) {
+        return id;
+      }
+    }
+
+    return;
+  }
+
+  public resurrect(evotar: Evotar) {
+    const id = this.getViewerId(evotar);
+
+    if (id) {
+      const tombStone = this.tombstones.find((obj) => obj.id == id);
+
+      if (tombStone) {
+        evotar.setPosition(tombStone.container.position);
+        tombStone.despawn();
+        this.deleteTombStone(tombStone);
+      }
+    }
+  }
+
+  public kill(evotar: Evotar) {
+    const id = this.getViewerId(evotar);
+
+    if (id) {
+      const tombStone = new TombStone(id);
+      const position = evotar.getCenterPosition();
+      this.addTombStone(tombStone);
+      tombStone.spawn({
+        position,
+        scale: evotar.getScale(),
+      });
+    }
+  }
+
+  public addTombStone(object: TombStone): void {
+    app.stage.addChild(object.container);
+    this.tombstones.push(object);
+  }
+
+  public deleteTombStone(object: TombStone): void {
+    app.stage.removeChild(object.container);
+    this.tombstones = this.tombstones.filter((obj) => obj != object);
   }
 
   public addViewer(id: string, evotar: Evotar): void {

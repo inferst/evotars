@@ -26,7 +26,7 @@ export class Evotars {
 
   processRaid = (data: RaidEntity) => evotarsManager.processRaid(data);
 
-  get manager() {
+  public get manager() {
     return evotarsManager;
   }
 

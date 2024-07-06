@@ -45,14 +45,7 @@ export class App {
     PIXI.Assets.add({ alias: 'skull', src: '/client/skull.png' });
     PIXI.Assets.add({ alias: 'weight', src: '/client/weight.png' });
 
-    await PIXI.Assets.load([
-      'death',
-      'skull',
-      'weight',
-      'poof',
-      'rip1',
-      'rip2',
-    ]);
+    await PIXI.Assets.load(['skull', 'weight', 'poof', 'rip1', 'rip2']);
 
     this.ticker = new PIXI.Ticker();
     this.ticker.deltaTime = FIXED_DELTA_TIME * 0.06;

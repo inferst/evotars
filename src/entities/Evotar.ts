@@ -93,7 +93,7 @@ export class Evotar {
 
   private isJumping = false;
 
-  private isKillJumping = false;
+  private isHitJumping = false;
 
   private isDashing = false;
 
@@ -306,7 +306,7 @@ export class Evotar {
 
       if (this.info.jumps > 0) {
         this.info.useJump();
-        this.isKillJumping = true;
+        this.isHitJumping = true;
       }
     }
   }
@@ -328,6 +328,10 @@ export class Evotar {
 
       if (!data) {
         return;
+      }
+
+      if (this.sprite) {
+        this.container.removeChild(this.sprite.container);
       }
 
       this.state.sprite = sprite;
@@ -410,7 +414,7 @@ export class Evotar {
           this.landTimer = new Timer(200, () => {
             this.setAnimationState(EvotarSpriteTags.Idle);
             this.isJumping = false;
-            this.isKillJumping = false;
+            this.isHitJumping = false;
           });
         }
       }
@@ -443,7 +447,7 @@ export class Evotar {
 
     this.container.position.set(position.x, position.y);
 
-    if (this.isKillJumping) {
+    if (this.isHitJumping) {
       this.jumpHit();
     }
   }

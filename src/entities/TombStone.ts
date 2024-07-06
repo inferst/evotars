@@ -1,7 +1,6 @@
 import * as PIXI from 'pixi.js';
 import * as TWEEN from '@tweenjs/tween.js';
 import { Point } from '../helpers/types';
-import { SimpleObject } from '../types';
 import { stageSpriteContainer } from '../stageSpriteContainer';
 import { app } from '../app';
 
@@ -12,7 +11,7 @@ export type TombStoneProps = {
 
 const SPRITE_SCALE = 4;
 
-export class TombStone implements SimpleObject {
+export class TombStone {
   public container: PIXI.Container = new PIXI.Container();
   private sprite: PIXI.Sprite;
 

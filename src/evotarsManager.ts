@@ -144,7 +144,7 @@ class EvotarsManager {
     }
   }
 
-  private despawnEvotar(id: string, evotar: Evotar) {
+  public despawnEvotar(id: string, evotar: Evotar) {
     evotar.despawn({
       onComplete: () => {
         this.deleteViewer(id, evotar);

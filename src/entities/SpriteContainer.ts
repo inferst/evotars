@@ -1,6 +1,11 @@
 import * as PIXI from 'pixi.js';
 import { Point } from '../helpers/types';
-import { EvotarLayerSprites } from '../services/spriteService';
+import {
+  EvotarAnimatedSprites,
+  EvotarLayerSprites,
+  EvotarSpriteData,
+  EvotarSpriteTags,
+} from '../services/spriteService';
 import { app } from '../app';
 
 export type EvotarSpriteContainerProps = {
@@ -14,29 +19,55 @@ export type EvotarSpriteContainerProps = {
 export class EvotarSpriteContainer {
   public container: PIXI.Container = new PIXI.Container();
 
-  public sprites: EvotarLayerSprites;
+  private currentTag: string = EvotarSpriteTags.Idle;
 
-  constructor(sprites: EvotarLayerSprites) {
-    this.sprites = sprites;
-
+  constructor(
+    private sprites: EvotarAnimatedSprites,
+    public data: EvotarSpriteData,
+  ) {
+    this.container.pivot.set(0, data.collider.y + data.collider.h);
     this.container.sortableChildren = true;
 
     let zIndex = 0;
 
-    for (const layer in this.sprites) {
-      const sprite = this.sprites[layer];
-      this.container.addChild(sprite);
+    for (const key in this.sprites) {
+      const evotarSprite = this.sprites[key];
 
-      sprite.zIndex = ++zIndex;
-      sprite.anchor.set(0.5, 0);
-      sprite.autoUpdate = false;
-      sprite.play();
+      for (const layer in evotarSprite) {
+        const sprite = evotarSprite[layer];
+
+        sprite.zIndex = ++zIndex;
+        sprite.anchor.set(0.5, 0);
+        sprite.autoUpdate = false;
+        sprite.play();
+      }
+    }
+  }
+
+  public getLayersByTag(tag: EvotarSpriteTags): EvotarLayerSprites {
+    return this.sprites[tag];
+  }
+
+  public setTag(tag: EvotarSpriteTags = EvotarSpriteTags.Idle) {
+    if (this.currentTag != tag) {
+      this.container.removeChildren();
+    }
+
+    this.currentTag = tag;
+
+    const current = this.sprites[this.currentTag];
+
+    for (const layer in current) {
+      const sprite = current[layer];
+      this.container.addChild(sprite);
     }
   }
 
   public update(props: EvotarSpriteContainerProps): void {
-    for (const layer in this.sprites) {
-      const sprite = this.sprites[layer];
+    const current = this.sprites[this.currentTag];
+
+    for (const layer in current) {
+      const sprite = current[layer];
 
       if (props.play) {
         sprite.update(app.ticker);

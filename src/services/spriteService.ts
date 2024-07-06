@@ -110,6 +110,33 @@ export class SpriteService {
     return this.sprites[name];
   }
 
+  public createAnimatedSprite(
+    name: string,
+    sheet: Spritesheet<SpritesheetData>,
+  ): AnimatedSprite | undefined {
+    for (const frameTag of sheet.data.meta.frameTags ?? []) {
+      const textures = [];
+
+      for (let i = frameTag.from; i <= frameTag.to; i++) {
+        const framekey = i.toString();
+
+        const key = name + '_' + framekey;
+        const texture = sheet.textures[key];
+        const time = sheet.data.frames[key].duration;
+
+        textures.push({ texture: texture, time: time });
+      }
+
+      const sprite = new AnimatedSprite(textures);
+
+      sprite.texture.source.scaleMode = 'nearest';
+
+      return sprite;
+    }
+
+    return;
+  }
+
   public getAnimatedSprites(name: string): EvotarAnimatedSprites {
     if (!name) {
       throw Error('Sheet is not defined');

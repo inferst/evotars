@@ -33,84 +33,39 @@ if (root) {
   await evotars.run();
   evotars.updateSettings(settings);
 
-  await delay(500);
+  for (let i = 0; i < 100; i++) {
+    await delay(50);
+    await evotars.manager.spawnViewerEvotar(
+      'evotar' + i,
+      {
+        name: 'Evotar' + i,
+        sprite: 'dude',
+        // scale: 2,
+      },
+      {
+        // positionX: 0.5,
+      },
+    );
+  }
 
-  evotars.processAction({
-    name: 'dash',
-    id: 1,
-    title: 'Jump',
-    cooldown: 0,
-    description: 'Jump',
-    data: {},
-    userId: '1',
-    info: {
-      color: 'pink',
-      displayName: 'Evotar',
+  const evotar = await evotars.manager.spawnViewerEvotar(
+    'test',
+    {
+      name: 'Test',
       sprite: 'dude',
+      scale: 4,
+      direction: 1,
     },
-  });
-
-  await delay(500);
-
-  evotars.processMessage({
-    message: 'Hello!',
-    userId: '1',
-    emotes: [
-      'https://dudes2.mikedanagam.space/7tv-emotes/emote/60ae4bb30e35477634610fda/4x.gif',
-    ],
-    info: {
-      color: 'pink',
-      displayName: 'Evotar',
-      sprite: 'dude',
+    {
+      positionX: 0.65,
     },
-  });
+  );
 
-  await delay(1000);
+  evotar.addJumpHit(100);
 
-  evotars.processAction({
-    name: 'jump',
-    id: 1,
-    title: 'Jump',
-    cooldown: 0,
-    description: 'Jump',
-    data: {},
-    userId: '1',
-    info: {
-      color: 'pink',
-      displayName: 'Evotar',
-      sprite: 'dude',
-    },
-  });
+  while (true) {
+    await delay(5000);
 
-  await delay(500);
-
-  evotars.processMessage({
-    message: 'Hello!',
-    userId: '1',
-    emotes: [
-      'https://dudes2.mikedanagam.space/7tv-emotes/emote/60ae4bb30e35477634610fda/4x.gif',
-      'https://dudes2.mikedanagam.space/7tv-emotes/emote/60ccf4479f5edeff9938fa77/4x.gif',
-      'https://dudes2.mikedanagam.space/7tv-emotes/emote/60aeeb53a564afa26ee82323/4x.gif',
-      'https://dudes2.mikedanagam.space/7tv-emotes/emote/62f424b0ea941a22a1f03268/4x.gif',
-      'https://dudes2.mikedanagam.space/7tv-emotes/emote/60b056f5b254a5e16b929707/4x.gif',
-    ],
-    info: {
-      color: 'pink',
-      displayName: 'Evotar',
-      sprite: 'dude',
-    },
-  });
-  await delay(500);
-  evotars.processMessage({
-    message: 'Hello! Hello! Hello! Hello! Hello! Hello! Hello! Hello! Hello! ',
-    userId: '2',
-    emotes: [
-      'https://dudes2.mikedanagam.space/7tv-emotes/emote/60ae4bb30e35477634610fda/4x.gif',
-    ],
-    info: {
-      color: 'pink',
-      displayName: 'Evotar 2',
-      sprite: 'dude',
-    },
-  });
+    evotar.jump();
+  }
 }

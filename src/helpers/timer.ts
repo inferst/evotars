@@ -3,7 +3,10 @@ import { FIXED_DELTA_TIME } from '../config/constants';
 export class Timer {
   public isCompleted = false;
 
-  constructor(public current = 0, private onComplete?: () => void) {}
+  constructor(
+    public current = 0,
+    private onComplete?: () => void,
+  ) {}
 
   tick(delta: number = FIXED_DELTA_TIME) {
     if (this.isCompleted) {
@@ -13,9 +16,13 @@ export class Timer {
     this.current -= delta;
 
     if (this.current < 0) {
-      this.isCompleted = true;
-      this.onComplete?.();
+      this.complete();
     }
+  }
+
+  complete() {
+    this.isCompleted = true;
+    this.onComplete?.();
   }
 }
 

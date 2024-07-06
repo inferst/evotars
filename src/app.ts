@@ -39,6 +39,14 @@ export class App {
       });
     }
 
+    PIXI.Assets.add({ alias: 'poof', src: '/client/poof.json' });
+    PIXI.Assets.add({ alias: 'rip1', src: '/client/rip1.png' });
+    PIXI.Assets.add({ alias: 'rip2', src: '/client/rip2.png' });
+    PIXI.Assets.add({ alias: 'skull', src: '/client/skull.png' });
+    PIXI.Assets.add({ alias: 'weight', src: '/client/weight.png' });
+
+    await PIXI.Assets.load(['skull', 'weight', 'poof', 'rip1', 'rip2']);
+
     this.ticker = new PIXI.Ticker();
     this.ticker.deltaTime = FIXED_DELTA_TIME * 0.06;
 

@@ -89,10 +89,10 @@ export const isSpriteUserActionEntity = (
   entity: ActionEntity,
 ): entity is SpriteUserActionEntity => entity.name == 'sprite';
 
-export const isAddJumpHitUserActionEntity = (
+export const isAddJumpHitsUserActionEntity = (
   entity: ActionEntity,
 ): entity is AddJumpHitsUserActionEntity => entity.name == 'add_jump_hits';
 
-export const isResurrectHitUserActionEntity = (
+export const isResurrectUserActionEntity = (
   entity: ActionEntity,
 ): entity is ResurrectUserActionEntity => entity.name == 'resurrect';

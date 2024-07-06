@@ -3,12 +3,12 @@ import {
   RaidEntity,
   TwitchChatterEntity,
   UserActionEntity,
-  isAddJumpHitUserActionEntity,
+  isAddJumpHitsUserActionEntity,
   isColorUserActionEntity,
   isDashUserActionEntity,
   isGrowUserActionEntity,
   isJumpUserActionEntity,
-  isResurrectHitUserActionEntity,
+  isResurrectUserActionEntity,
   isSpriteUserActionEntity,
 } from './types';
 import * as PIXI from 'pixi.js';
@@ -230,11 +230,11 @@ class EvotarsManager {
       evotar.setSprite(action.data.sprite);
     }
 
-    if (isAddJumpHitUserActionEntity(action)) {
+    if (isAddJumpHitsUserActionEntity(action)) {
       evotar.addJumpHit(action.data.count);
     }
 
-    if (isResurrectHitUserActionEntity(action)) {
+    if (isResurrectUserActionEntity(action)) {
       evotar.resurrect();
     }
   }

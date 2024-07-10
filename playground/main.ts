@@ -33,20 +33,35 @@ if (root) {
   await evotars.run();
   evotars.updateSettings(settings);
 
-  for (let i = 0; i < 100; i++) {
-    await delay(50);
-    await evotars.manager.spawnViewerEvotar(
-      'evotar' + i,
-      {
-        name: 'Evotar' + i,
+  evotars.processRaid({
+    viewers: {
+      count: 10,
+      sprite: 'agent'
+    },
+    broadcaster: {
+      id: 'raider',
+      info: {
         sprite: 'dude',
-        // scale: 2,
-      },
-      {
-        // positionX: 0.5,
-      },
-    );
-  }
+        color: 'green',
+        displayName: 'MikeRime'
+      }
+    }
+  });
+
+  // for (let i = 0; i < 100; i++) {
+  //   await delay(50);
+  //   await evotars.manager.spawnViewerEvotar(
+  //     'evotar' + i,
+  //     {
+  //       name: 'Evotar' + i,
+  //       sprite: 'dude',
+  //       // scale: 2,
+  //     },
+  //     {
+  //       // positionX: 0.5,
+  //     },
+  //   );
+  // }
 
   const evotar = await evotars.manager.spawnViewerEvotar(
     'test',

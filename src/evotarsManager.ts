@@ -57,12 +57,8 @@ class EvotarsManager {
     }
   }
 
-  public getViewerEvotars() {
-    return this.viewers;
-  }
-
-  public getViewerEvotar(id: number) {
-    return this.viewers[id];
+  public getEvotars() {
+    return Object.values(this.viewers).concat(this.raiders);
   }
 
   public async spawnViewerEvotar(
@@ -81,7 +77,7 @@ class EvotarsManager {
     return evotar;
   }
 
-  public processRaid(data: RaidEntity) {
+  public async processRaid(data: RaidEntity) {
     if (!app.settings.fallingRaiders) {
       return;
     }
@@ -91,7 +87,7 @@ class EvotarsManager {
     for (let i = 0; i < data.viewers.count; i++) {
       const evotar = new Evotar();
 
-      evotar.setProps({
+      await evotar.setProps({
         isAnonymous: true,
         zIndex: -1,
         sprite: data.viewers.sprite,
@@ -104,11 +100,7 @@ class EvotarsManager {
       });
 
       timers.add(i * time + 60000, () => {
-        evotar.despawn({
-          onComplete: () => {
-            this.deleteRaider(evotar);
-          },
-        });
+        this.despawnRaider(evotar);
       });
     }
 
@@ -124,9 +116,9 @@ class EvotarsManager {
       isImmortal: true,
     };
 
-    const spawnBroadcaster = () => {
+    const spawnBroadcaster = async () => {
       const evotar = new Evotar();
-      evotar.setProps(props);
+      await evotar.setProps(props);
       this.addViewer(data.broadcaster.id, evotar);
       evotar.spawn({ isFalling: true, positionX: 0.5 });
     };
@@ -144,20 +136,34 @@ class EvotarsManager {
     }
   }
 
-  public despawnEvotar(id: string, evotar: Evotar) {
-    evotar.despawn({
-      onComplete: () => {
-        this.deleteViewer(id, evotar);
-      },
-    });
-
-    const tombStone = this.tombstones.find((stone) => stone.id == id);
+  public despawnTombStone(evotar: Evotar): void {
+    const tombStone = this.tombstones.find((stone) => stone.evotar == evotar);
 
     if (tombStone) {
       tombStone.despawn(true, () => {
         this.deleteTombStone(tombStone);
       });
     }
+  }
+
+  public despawnRaider(evotar: Evotar) {
+    evotar.despawn({
+      onComplete: () => {
+        this.deleteRaider(evotar);
+      },
+    });
+
+    this.despawnTombStone(evotar);
+  }
+
+  public despawnViewer(id: string, evotar: Evotar) {
+    evotar.despawn({
+      onComplete: () => {
+        this.deleteViewer(id, evotar);
+      },
+    });
+
+    this.despawnTombStone(evotar);
   }
 
   public async processChatters(data: TwitchChatterEntity[]) {
@@ -171,7 +177,7 @@ class EvotarsManager {
         const evotar = this.viewers[id];
 
         if (evotar) {
-          this.despawnEvotar(id, evotar);
+          this.despawnViewer(id, evotar);
         }
       }
     }
@@ -325,42 +331,20 @@ class EvotarsManager {
     }
   }
 
-  public getViewerId(evotar: Evotar): string | undefined {
-    for (const id in this.viewers) {
-      if (this.viewers[id] == evotar) {
-        return id;
-      }
-    }
-
-    return;
-  }
-
   public resurrect(evotar: Evotar) {
-    const id = this.getViewerId(evotar);
+    const tombStone = this.tombstones.find((obj) => obj.evotar == evotar);
 
-    if (id) {
-      const tombStone = this.tombstones.find((obj) => obj.id == id);
-
-      if (tombStone) {
-        evotar.setPosition(tombStone.container.position);
-        tombStone.despawn();
-        this.deleteTombStone(tombStone);
-      }
+    if (tombStone) {
+      evotar.setPosition(tombStone.container.position);
+      tombStone.despawn();
+      this.deleteTombStone(tombStone);
     }
   }
 
   public kill(evotar: Evotar) {
-    const id = this.getViewerId(evotar);
-
-    if (id) {
-      const tombStone = new TombStone(id);
-      const position = evotar.getCenterPosition();
-      this.addTombStone(tombStone);
-      tombStone.spawn({
-        position,
-        scale: evotar.getScale(),
-      });
-    }
+    const tombStone = new TombStone(evotar);
+    this.addTombStone(tombStone);
+    tombStone.spawn();
   }
 
   public addTombStone(object: TombStone): void {

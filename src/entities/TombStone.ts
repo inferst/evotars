@@ -3,6 +3,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 import { Point } from '../helpers/types';
 import { stageSpriteContainer } from '../stageSpriteContainer';
 import { app } from '../app';
+import { Evotar } from './Evotar';
 
 export type TombStoneProps = {
   position: Point;
@@ -13,6 +14,7 @@ const SPRITE_SCALE = 4;
 
 export class TombStone {
   public container: PIXI.Container = new PIXI.Container();
+
   private sprite: PIXI.Sprite;
 
   private gravity = 0.2;
@@ -24,7 +26,7 @@ export class TombStone {
 
   fadeTween?: TWEEN.Tween<PIXI.Container>;
 
-  constructor(public readonly id: string) {
+  constructor(public readonly evotar: Evotar) {
     const name = Math.random() > 0.5 ? 'rip1' : 'rip2';
     const asset = PIXI.Assets.get(name);
     this.sprite = PIXI.Sprite.from(asset);
@@ -35,6 +37,8 @@ export class TombStone {
   }
 
   public update() {
+    this.fadeTween?.update();
+
     const position = {
       x: this.container.position.x,
       y: this.container.position.y,
@@ -72,13 +76,16 @@ export class TombStone {
     }
   }
 
-  public spawn(props: TombStoneProps) {
+  public spawn() {
+    const position = this.evotar.getCenterPosition();
+    const scale = this.evotar.getScale();
+
     this.container.removeChildren();
     this.container.addChild(this.sprite);
 
     this.container.position.set(
-      props.position.x,
-      (props.position.y ?? 0) + (this.sprite.height / 2) * props.scale,
+      position.x,
+      (position.y ?? 0) + (this.sprite.height / 2) * scale,
     );
 
     this.container.scale.set(SPRITE_SCALE);
@@ -89,10 +96,10 @@ export class TombStone {
     stageSpriteContainer.play(
       'poof',
       {
-        x: props.position.x,
-        y: props.position.y,
+        x: position.x,
+        y: position.y,
       },
-      props.scale,
+      scale,
     );
   }
 }

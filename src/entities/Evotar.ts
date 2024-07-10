@@ -242,7 +242,7 @@ export class Evotar {
     }
 
     this.stateTimer = new Timer(5000, () => {
-      if (!this.isJumping && !this.isDead) {
+      if (!this.isJumping) {
         this.setAnimationState(EvotarSpriteTags.Run);
       }
     });
@@ -287,8 +287,12 @@ export class Evotar {
     this.info.addJumps(count);
   }
 
+  canDoAction(): boolean {
+    return !this.isDespawned && !this.isDead;
+  }
+
   async jump(options?: EvotarJumpProps): Promise<void> {
-    if (this.isDespawned) {
+    if (!this.canDoAction()) {
       return;
     }
 
@@ -312,7 +316,7 @@ export class Evotar {
   }
 
   dash(options: { force: number }): void {
-    if (this.isDespawned) {
+    if (!this.canDoAction()) {
       return;
     }
 
@@ -453,7 +457,7 @@ export class Evotar {
   }
 
   jumpHit() {
-    const otherViewers = evotarsManager.getViewerEvotars();
+    const otherViewers = evotarsManager.getEvotars();
 
     for (const id in otherViewers) {
       const other = otherViewers[id];

@@ -190,13 +190,14 @@ class EvotarsManager {
           const props = {
             name: chatter.name,
             isAnonymous: !this.hasActivity(chatter.userId),
+            sprite: 'default',
           };
 
           const evotar = new Evotar();
+          this.addViewer(chatter.userId, evotar);
+
           await evotar.setProps(props);
           evotar.spawn();
-
-          this.addViewer(chatter.userId, evotar);
         }
       }
     }

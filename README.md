@@ -10,7 +10,7 @@ It's just an app for rendering any characters and processing commands like messa
 
 Preinstalled version can be used on your stream right now.
 
-Preview: http://dudes2.mikedanagam.space
+Preview: https://evotars.inferst.com
 
 Open OBS or any streaming tool which supported browser overlay.
 

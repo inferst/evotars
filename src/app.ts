@@ -1,15 +1,24 @@
 import * as PIXI from 'pixi.js';
-import { Evotar } from './entities/Evotar';
-import { timers } from './helpers/timer';
-import { evotarsManager } from './evotarsManager';
-import { SoundOptions, soundService } from './services/soundService';
-import { SettingsEntity } from './types';
-import { SpriteLoaderFn, spriteService } from './services/spriteService';
 import { FIXED_DELTA_TIME } from './config/constants';
+import { Evotar } from './entities/Evotar';
+import { evotarsManager } from './evotarsManager';
+import { timers } from './helpers/timer';
+import { SoundOptions, soundService } from './services/soundService';
+import { SpriteLoaderFn, spriteService } from './services/spriteService';
+import { SettingsEntity } from './types';
+
+export type AssetsOptions = {
+  poof: string;
+  rip1: string;
+  rip2: string;
+  skull: string;
+  weight: string;
+};
 
 export type AppOptions = {
   font?: string;
   sounds?: SoundOptions;
+  assets: AssetsOptions;
   spriteLoaderFn: SpriteLoaderFn;
 };
 
@@ -39,11 +48,12 @@ export class App {
       });
     }
 
-    PIXI.Assets.add({ alias: 'poof', src: '/client/poof.json' });
-    PIXI.Assets.add({ alias: 'rip1', src: '/client/rip1.png' });
-    PIXI.Assets.add({ alias: 'rip2', src: '/client/rip2.png' });
-    PIXI.Assets.add({ alias: 'skull', src: '/client/skull.png' });
-    PIXI.Assets.add({ alias: 'weight', src: '/client/weight.png' });
+    for (const key in options.assets) {
+      PIXI.Assets.add({
+        alias: key,
+        src: options.assets[key as keyof AssetsOptions],
+      });
+    }
 
     await PIXI.Assets.load(['skull', 'weight', 'poof', 'rip1', 'rip2']);
 

@@ -3,7 +3,6 @@ import { delay } from '../src/helpers/delay';
 import { SettingsEntity } from '../src/types';
 import './styles.css';
 
-const sounds = { jump: { src: '/sounds/jump.mp3' } };
 const settings: SettingsEntity = {
   fallingEvotars: true,
   fallingRaiders: true,
@@ -14,7 +13,14 @@ const root = document.body;
 if (root) {
   const evotars = new Evotars(root, {
     font: '/fonts/Rubik-VariableFont_wght.ttf',
-    sounds,
+    sounds: { jump: { src: '/sounds/jump.mp3' } },
+    assets: {
+      poof: '/client/poof.json',
+      rip1: '/client/rip1.png',
+      rip2: '/client/rip2.png',
+      skull: '/client/skull.png',
+      weight: '/client/weight.png',
+    },
     spriteLoaderFn: async (name: string) => {
       const path = '/evotars/' + name + '/';
       const sprite = await fetch(path + 'sprite.json');
@@ -36,16 +42,16 @@ if (root) {
   evotars.processRaid({
     viewers: {
       count: 10,
-      sprite: 'agent'
+      sprite: 'agent',
     },
     broadcaster: {
       id: 'raider',
       info: {
         sprite: 'dude',
         color: 'green',
-        displayName: 'MikeRime'
-      }
-    }
+        displayName: 'MikeRime',
+      },
+    },
   });
 
   // for (let i = 0; i < 100; i++) {

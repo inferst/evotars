@@ -33,8 +33,6 @@ export class EvotarMessage {
 
   private isChecking = true;
 
-  private messageQueue: string[] = [];
-
   private showTween?: Tween<PIXI.Container>;
   private hideTween?: Tween<PIXI.Container>;
 
@@ -61,17 +59,6 @@ export class EvotarMessage {
     this.showTween?.update();
     this.hideTween?.update();
 
-    if (this.isChecking && this.messageQueue.length > 0) {
-      this.isChecking = false;
-
-      const message = this.messageQueue.shift();
-
-      if (message) {
-        this.beforeShow();
-        this.show(message);
-      }
-    }
-
     this.container.position.x = props.position.x ?? this.container.position.x;
     this.container.position.y = props.position.y ?? this.container.position.y;
 
@@ -84,7 +71,15 @@ export class EvotarMessage {
   }
 
   public add(message: string): void {
-    this.messageQueue.push(message);
+    this.isChecking = false;
+
+    this.hideTween?.stop();
+    this.showTween?.stop();
+
+    if (message) {
+      this.beforeShow();
+      this.show(message);
+    }
   }
 
   private drawBox(text: PIXI.Text) {

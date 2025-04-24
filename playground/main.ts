@@ -54,21 +54,6 @@ if (root) {
     },
   });
 
-  // for (let i = 0; i < 100; i++) {
-  //   await delay(50);
-  //   await evotars.manager.spawnViewerEvotar(
-  //     'evotar' + i,
-  //     {
-  //       name: 'Evotar' + i,
-  //       sprite: 'dude',
-  //       // scale: 2,
-  //     },
-  //     {
-  //       // positionX: 0.5,
-  //     },
-  //   );
-  // }
-
   const evotar = await evotars.manager.spawnViewerEvotar(
     'test',
     {

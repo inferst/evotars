@@ -117,10 +117,9 @@ export class Evotar {
 
   private offset = 0;
 
-  private screenBounds = {
-    left: this.offset,
-    right: app.renderer.width - this.offset,
-  };
+  get screenBounds() {
+    return { left: this.offset, right: app.renderer.width - this.offset };
+  }
 
   getCenterOffsetY(): number {
     if (this.sprite) {
@@ -172,7 +171,7 @@ export class Evotar {
 
   constructor() {
     this.container.addChild(this.name.text);
-    this.container.addChild(this.info.containter);
+    this.container.addChild(this.info.container);
     this.container.addChild(this.emoteSpitter.container);
     this.container.addChild(this.message.container);
 
@@ -517,7 +516,7 @@ export class Evotar {
 
     this.message.update({
       position: {
-        y: this.info.containter.position.y - this.info.containter.height - 6,
+        y: this.info.container.position.y - this.info.container.height - 6,
       },
     });
 

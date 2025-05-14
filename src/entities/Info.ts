@@ -23,7 +23,7 @@ const style: TextStyleOptions = {
 };
 
 export class EvotarInfo {
-  public containter: Container = new Container();
+  public container: Container = new Container();
 
   private killText: Text = new Text({
     text: undefined,
@@ -43,7 +43,7 @@ export class EvotarInfo {
   public jumps = 0;
 
   constructor() {
-    this.containter.zIndex = 100;
+    this.container.zIndex = 100;
 
     this.killSprite = this.createSprite('skull');
     this.killText.anchor.set(0, 0.5);
@@ -103,17 +103,17 @@ export class EvotarInfo {
 
     let prev = -width / 2;
 
-    this.containter.removeChildren();
+    this.container.removeChildren();
 
     for (const item of items) {
       item.position.set(prev, 0);
       prev += item.width + padding;
-      this.containter.addChild(item);
+      this.container.addChild(item);
     }
   }
 
   update(props: EvotarInfoUpdateProps) {
-    this.containter.position.x = props.position.x ?? this.containter.position.x;
-    this.containter.position.y = props.position.y ?? this.containter.position.y;
+    this.container.position.x = props.position.x ?? this.container.position.x;
+    this.container.position.y = props.position.y ?? this.container.position.y;
   }
 }

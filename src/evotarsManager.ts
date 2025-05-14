@@ -27,6 +27,8 @@ const EVOTAR_DESPAWN_TIMER = 1000 * 60 * 5;
 
 class EvotarsManager {
   public viewers: Record<string, Evotar | undefined> = {};
+  public viewerArray: string[] = [];
+
   public tombstones: TombStone[] = [];
 
   public raiders: Evotar[] = [];
@@ -69,6 +71,17 @@ class EvotarsManager {
     const evotar = new Evotar();
     this.addViewer(userId, evotar);
 
+    if (app.settings.maxEvotars) {
+      if (this.viewerArray.length > app.settings.maxEvotars) {
+        const id = this.viewerArray.shift();
+        const evotar = id != undefined ? this.viewers[id] : undefined;
+
+        if (id && evotar) {
+          this.deleteViewer(id, evotar);
+        }
+      }
+    }
+
     await evotar.setProps(props);
     evotar.spawn(spawnProps);
 
@@ -83,6 +96,12 @@ class EvotarsManager {
     }
 
     const time = (1 / data.viewers.count) * 5000;
+
+    let count = data.viewers.count;
+
+    if (app.settings.maxEvotars) {
+      count = Math.min(count, app.settings.maxEvotars);
+    }
 
     for (let i = 0; i < data.viewers.count; i++) {
       const evotar = new Evotar();
@@ -117,10 +136,10 @@ class EvotarsManager {
     };
 
     const spawnBroadcaster = async () => {
-      const evotar = new Evotar();
-      await evotar.setProps(props);
-      this.addViewer(data.broadcaster.id, evotar);
-      evotar.spawn({ isFalling: true, positionX: 0.5 });
+      await this.spawnViewerEvotar(data.broadcaster.id, props, {
+        isFalling: true,
+        positionX: 0.5,
+      });
     };
 
     this.recentEvotarActivity[data.broadcaster.id] = performance.now();
@@ -193,11 +212,7 @@ class EvotarsManager {
             sprite: 'default',
           };
 
-          const evotar = new Evotar();
-          this.addViewer(chatter.userId, evotar);
-
-          await evotar.setProps(props);
-          evotar.spawn();
+          await this.spawnViewerEvotar(chatter.userId, props, {});
         }
       }
     }
@@ -279,12 +294,7 @@ class EvotarsManager {
     );
 
     if (!evotar) {
-      const evotar = new Evotar();
-
-      this.addViewer(action.userId, evotar);
-      await evotar.setProps(props);
-
-      evotar.spawn({
+      await this.spawnViewerEvotar(action.userId, props, {
         onComplete: () => {
           const evotar = this.viewers[action.userId];
           if (evotar) {
@@ -312,11 +322,9 @@ class EvotarsManager {
         ? !this.hasActivity(data.userId)
         : false;
 
-      evotar = new Evotar();
-      this.addViewer(data.userId, evotar);
-
-      await evotar.setProps(props);
-      evotar.spawn({ isFalling });
+      evotar = await this.spawnViewerEvotar(data.userId, props, {
+        isFalling,
+      });
     } else {
       evotar.setProps(props);
     }
@@ -361,6 +369,7 @@ class EvotarsManager {
   public addViewer(id: string, evotar: Evotar): void {
     this.subscriptions.forEach((s) => s.onAdd(evotar));
     this.viewers[id] = evotar;
+    this.viewerArray.push(id);
   }
 
   public deleteViewer(id: string, evotar: Evotar): void {

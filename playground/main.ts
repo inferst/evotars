@@ -3,9 +3,23 @@ import { delay } from '../src/helpers/delay';
 import { SettingsEntity } from '../src/types';
 import './styles.css';
 
+const raiderInfo = {
+  sprite: 'sith',
+  color: 'green',
+  displayName: 'Raider',
+};
+
+const raiderMessage = (message: string) => ({
+  message,
+  userId: 'raider',
+  emotes: [],
+  info: raiderInfo,
+});
+
 const settings: SettingsEntity = {
   fallingEvotars: true,
   fallingRaiders: true,
+  maxEvotars: 2,
 };
 
 const root = document.body;
@@ -39,6 +53,8 @@ if (root) {
   await evotars.run();
   evotars.updateSettings(settings);
 
+  await delay(5000);
+
   evotars.processRaid({
     viewers: {
       count: 10,
@@ -54,6 +70,8 @@ if (root) {
     },
   });
 
+  evotars.processMessage(raiderMessage('RAID!!!'));
+
   const evotar = await evotars.manager.spawnViewerEvotar(
     'test',
     {
@@ -68,6 +86,45 @@ if (root) {
   );
 
   evotar.addJumpHit(100);
+
+  await delay(1000);
+
+  await evotars.manager.spawnViewerEvotar(
+    'test2',
+    {
+      name: 'Test2',
+      sprite: 'dude',
+      scale: 4,
+      direction: 1,
+    },
+    {},
+  );
+
+  await delay(1000);
+
+  await evotars.manager.spawnViewerEvotar(
+    'test3',
+    {
+      name: 'Test3',
+      sprite: 'dude',
+      scale: 4,
+      direction: 1,
+    },
+    {},
+  );
+
+  await delay(1000);
+
+  await evotars.manager.spawnViewerEvotar(
+    'test4',
+    {
+      name: 'Test4',
+      sprite: 'dude',
+      scale: 4,
+      direction: 1,
+    },
+    {},
+  );
 
   while (true) {
     await delay(5000);

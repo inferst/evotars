@@ -1,20 +1,6 @@
 # Evotars
 
-Show animated evotars on your stream.
-
-## Features
-
-It's just an app for rendering any characters and processing commands like message, raid, action, etc.
-
-## Usage
-
-Preinstalled version can be used on your stream right now.
-
-Preview: https://evotars.inferst.com
-
-Open OBS or any streaming tool which supported browser overlay.
-
-Put URL to the browser source.
+Render lib for evotars app
 
 ## Development
 

@@ -22,6 +22,19 @@ export class EvotarEmoteSpitter {
 
   private timer?: Timer;
 
+  private createImageFromBuffer(
+    buffer: ArrayBuffer,
+    type: string,
+  ): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const blob = new Blob([buffer], { type });
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = (e) => reject(e);
+      img.src = URL.createObjectURL(blob);
+    });
+  }
+
   public async add(url: string): Promise<void> {
     const cachedGIF = GIFCache[url];
 
@@ -41,7 +54,14 @@ export class EvotarEmoteSpitter {
           break;
         }
         case 'image/png': {
-          image = PIXI.Sprite.from(url);
+          const buffer = await res.arrayBuffer();
+          const imageElement = await this.createImageFromBuffer(
+            buffer,
+            'image/png',
+          );
+          const texture = PIXI.Texture.from(imageElement);
+          URL.revokeObjectURL(imageElement.src);
+          image = new PIXI.Sprite(texture);
           break;
         }
         default: {
@@ -66,20 +86,18 @@ export class EvotarEmoteSpitter {
   public update(props: EvotarEmoteSpitterProps): void {
     this.timer?.tick();
 
-    if (!this.timer || this.timer.isCompleted) {
-      if (this.emotes.length > 0) {
-        this.timer = new Timer(2000, () => {
-          const sprite = this.emotes.shift();
+    if ((!this.timer || this.timer.isCompleted) && this.emotes.length > 0) {
+      this.timer = new Timer(2000, () => {
+        const sprite = this.emotes.shift();
 
-          if (sprite) {
-            if (this.isAnimatedGIF(sprite)) {
-              sprite.currentFrame = 0;
-            }
-
-            this.container.addChild(sprite);
+        if (sprite) {
+          if (this.isAnimatedGIF(sprite)) {
+            sprite.currentFrame = 0;
           }
-        });
-      }
+
+          this.container.addChild(sprite);
+        }
+      });
     }
 
     this.container.position.x = props.position.x ?? this.container.position.x;

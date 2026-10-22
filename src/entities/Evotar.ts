@@ -557,12 +557,16 @@ export class Evotar {
     return y > app.renderer.height;
   }
 
-  addMessage(message: string): void {
-    this.message.add(message);
+  addMessage(message: string, id?: string): void {
+    this.message.add(message, id);
     this.state.isAnonymous = false;
     this.fadeTween?.stop();
     this.fadeTween = undefined; // https://github.com/tweenjs/tween.js/issues/665
     this.container.alpha = 1;
+  }
+
+  deleteMessage(id: string): void {
+    this.message.delete(id);
   }
 
   async spitEmotes(emotes: string[]): Promise<void> {

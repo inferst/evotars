@@ -38,6 +38,8 @@ export class EvotarMessage {
 
   private timer?: Timer;
 
+  private id?: string;
+
   constructor(private beforeShow: () => void) {
     this.container.addChild(this.animated);
 
@@ -70,16 +72,28 @@ export class EvotarMessage {
     }
   }
 
-  public add(message: string): void {
+  public add(message: string, id?: string): void {
     this.isChecking = false;
 
     this.hideTween?.stop();
     this.showTween?.stop();
 
     if (message) {
+      this.id = id;
       this.beforeShow();
       this.show(message);
     }
+  }
+
+  public delete(id: string): void {
+    if (this.isChecking || this.id != id) {
+      return;
+    }
+
+    this.timer = undefined;
+    this.showTween?.stop();
+    this.showTween = undefined; // https://github.com/tweenjs/tween.js/issues/665
+    this.hideTween?.start();
   }
 
   private drawBox(text: PIXI.Text) {

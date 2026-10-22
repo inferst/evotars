@@ -1,4 +1,6 @@
 import {
+  BanEntity,
+  MessageDeleteEntity,
   MessageEntity,
   RaidEntity,
   TwitchChatterEntity,
@@ -332,11 +334,25 @@ class EvotarsManager {
     this.recentEvotarActivity[data.userId] = performance.now();
 
     if (data.message) {
-      evotar.addMessage(data.message);
+      evotar.addMessage(data.message, data.id);
     }
 
     if (data.emotes.length > 0) {
       evotar.spitEmotes(data.emotes);
+    }
+  }
+
+  public processMessageDelete(data: MessageDeleteEntity): void {
+    for (const id in this.viewers) {
+      this.viewers[id]?.deleteMessage(data.messageId);
+    }
+  }
+
+  public processBan(data: BanEntity): void {
+    const evotar = this.viewers[data.userId];
+
+    if (evotar) {
+      this.despawnViewer(data.userId, evotar);
     }
   }
 

@@ -1,6 +1,8 @@
 import { AppOptions, app } from './app';
 import { evotarsManager } from './evotarsManager';
 import {
+  BanEntity,
+  MessageDeleteEntity,
   MessageEntity,
   RaidEntity,
   SettingsEntity,
@@ -25,6 +27,11 @@ export class Evotars {
     evotarsManager.processChatters(data);
 
   processRaid = (data: RaidEntity) => evotarsManager.processRaid(data);
+
+  processMessageDelete = (data: MessageDeleteEntity) =>
+    evotarsManager.processMessageDelete(data);
+
+  processBan = (data: BanEntity) => evotarsManager.processBan(data);
 
   public get manager() {
     return evotarsManager;

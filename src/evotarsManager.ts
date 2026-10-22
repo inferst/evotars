@@ -383,6 +383,12 @@ class EvotarsManager {
   }
 
   public addViewer(id: string, evotar: Evotar): void {
+    const current = this.viewers[id];
+
+    if (current) {
+      this.deleteViewer(id, current);
+    }
+
     this.subscriptions.forEach((s) => s.onAdd(evotar));
     this.viewers[id] = evotar;
     this.viewerArray.push(id);
@@ -390,7 +396,12 @@ class EvotarsManager {
 
   public deleteViewer(id: string, evotar: Evotar): void {
     this.subscriptions.forEach((s) => s.onDelete(evotar));
-    delete this.viewers[id];
+
+    // A late despawn of a replaced evotar must not unregister the new one
+    if (this.viewers[id] == evotar) {
+      delete this.viewers[id];
+      this.viewerArray = this.viewerArray.filter((viewerId) => viewerId != id);
+    }
   }
 
   public addRaider(evotar: Evotar): void {
